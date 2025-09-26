@@ -5,6 +5,7 @@ import { useBudgets } from '@/hooks/useBudgets';
 import { useExpenses } from '@/hooks/useExpenses';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import MonthSelector from '@/components/navigation/MonthSelector';
+import MainNavigation from '@/components/navigation/MainNavigation';
 import MetricsCards from '@/components/dashboard/MetricsCards';
 import CategoryCard from '@/components/dashboard/CategoryCard';
 import ExpenseCharts from '@/components/dashboard/ExpenseCharts';
@@ -33,7 +34,7 @@ const Dashboard = () => {
   const totalSpent = expenses.reduce((sum, expense) => sum + expense.amount, 0);
   const twelveBaskets = totalIncome - totalSpent;
 
-  const categories: BudgetCategory[] = budgets.map(budget => {
+  const categories: (BudgetCategory & { budgetId?: string })[] = budgets.map(budget => {
     const categoryExpenses = expenses.filter(expense => expense.category_id === budget.category_id);
     const spent = categoryExpenses.reduce((sum, expense) => sum + expense.amount, 0);
     
@@ -44,6 +45,7 @@ const Dashboard = () => {
       color: budget.category_color,
       budgetAmount: budget.budgeted_amount,
       spent: spent,
+      budgetId: budget.id,
     };
   });
 
@@ -92,6 +94,10 @@ const Dashboard = () => {
               onMonthChange={handleMonthChange}
             />
           </div>
+        </div>
+
+        <div className="container mx-auto px-4 py-6">
+          <MainNavigation />
         </div>
 
         <div className="container mx-auto px-4 py-6">

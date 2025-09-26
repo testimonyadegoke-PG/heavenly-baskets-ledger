@@ -1,19 +1,30 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { BudgetCategory } from '@/types/expenses';
+import { useNavigate } from 'react-router-dom';
 
 interface CategoryCardProps {
-  category: BudgetCategory;
+  category: BudgetCategory & { budgetId?: string };
 }
 
 export default function CategoryCard({ category }: CategoryCardProps) {
-  const { name, icon, budgetAmount, spent } = category;
+  const navigate = useNavigate();
+  const { name, icon, budgetAmount, spent, budgetId } = category;
   const percentage = budgetAmount > 0 ? (spent / budgetAmount) * 100 : 0;
   const remaining = budgetAmount - spent;
   const isOverBudget = spent > budgetAmount;
 
+  const handleClick = () => {
+    if (budgetId) {
+      navigate(`/budgets/${budgetId}`);
+    }
+  };
+
   return (
-    <Card className="shadow-gentle hover:shadow-elevated transition-shadow duration-200">
+    <Card 
+      className="shadow-gentle hover:shadow-elevated transition-shadow duration-200 cursor-pointer"
+      onClick={handleClick}
+    >
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium flex items-center gap-2">
           <span className="text-lg">{icon}</span>

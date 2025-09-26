@@ -2,12 +2,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Expense, PREDEFINED_CATEGORIES } from '@/types/expenses';
 import { Calendar, Receipt } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface RecentExpensesProps {
   expenses: Expense[];
 }
 
 export default function RecentExpenses({ expenses }: RecentExpensesProps) {
+  const navigate = useNavigate();
   const sortedExpenses = [...expenses]
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .slice(0, 10); // Show only the 10 most recent
@@ -64,7 +66,8 @@ export default function RecentExpenses({ expenses }: RecentExpensesProps) {
             return (
               <div
                 key={expense.id}
-                className="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
+                className="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer"
+                onClick={() => navigate(`/expenses/${expense.id}`)}
               >
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   <div className="text-xl flex-shrink-0">
