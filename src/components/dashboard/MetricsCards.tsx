@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { TrendingUp, Gift, Wallet } from 'lucide-react';
+import { TrendingUp, Gift, Wallet, Target } from 'lucide-react';
 import { MonthlyData } from '@/types/expenses';
 
 interface MetricsCardsProps {
@@ -7,11 +7,14 @@ interface MetricsCardsProps {
 }
 
 export default function MetricsCards({ data }: MetricsCardsProps) {
-  const { heavensBlessings, totalSpent, twelveBaskets } = data;
+  const { heavensBlessings, totalSpent, twelveBaskets, categories } = data;
   const spentPercentage = (totalSpent / heavensBlessings) * 100;
+  const totalBudget = categories.reduce((sum, category) => sum + category.budgetAmount, 0);
+  const budgetPercentage = heavensBlessings > 0 ? (totalBudget / heavensBlessings) * 100 : 0;
+  const isOverBudget = totalBudget > heavensBlessings;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       {/* Heaven's Blessings */}
       <Card className="bg-gradient-accent shadow-gentle border-accent/20">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -40,6 +43,25 @@ export default function MetricsCards({ data }: MetricsCardsProps) {
           <div className="text-2xl font-bold">₦{totalSpent.toLocaleString()}</div>
           <p className="text-xs text-muted-foreground mt-1">
             {spentPercentage.toFixed(1)}% of Heaven's Blessings
+          </p>
+        </CardContent>
+      </Card>
+
+      {/* Total Budget */}
+      <Card className={`shadow-gentle ${isOverBudget ? 'bg-destructive-light' : 'bg-gradient-primary'}`}>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className={`text-sm font-medium ${isOverBudget ? 'text-destructive-foreground' : 'text-primary-foreground'}`}>
+            Total Budget
+          </CardTitle>
+          <Target className={`h-4 w-4 ${isOverBudget ? 'text-destructive-foreground' : 'text-primary-foreground'}`} />
+        </CardHeader>
+        <CardContent>
+          <div className={`text-2xl font-bold ${isOverBudget ? 'text-destructive-foreground' : 'text-primary-foreground'}`}>
+            ₦{totalBudget.toLocaleString()}
+          </div>
+          <p className={`text-xs mt-1 ${isOverBudget ? 'text-destructive-foreground/70' : 'text-primary-foreground/70'}`}>
+            {budgetPercentage.toFixed(1)}% of Heaven's Blessings
+            {isOverBudget && ' - Over budget!'}
           </p>
         </CardContent>
       </Card>

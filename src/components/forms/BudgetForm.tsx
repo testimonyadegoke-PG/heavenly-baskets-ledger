@@ -6,11 +6,13 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useCreateBudget, useUpdateBudget } from '@/hooks/useBudgets';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useCreateBudget, useUpdateBudget, useBudgets } from '@/hooks/useBudgets';
+import { useHeavensBlessings } from '@/hooks/useHeavensBlessings';
 import { Budget } from '@/types/database';
 import { PREDEFINED_CATEGORIES } from '@/types/expenses';
 import { useFamilyContext } from '@/contexts/FamilyContext';
-import { Loader2 } from 'lucide-react';
+import { Loader2, AlertTriangle } from 'lucide-react';
 
 const budgetSchema = z.object({
   category_id: z.string().min(1, 'Category is required'),
@@ -35,15 +37,32 @@ const BudgetForm = ({ initialData, defaultMonth, defaultYear, onSuccess }: Budge
   const isEditing = !!initialData;
 
   const currentDate = new Date();
+  const currentMonth = defaultMonth || currentDate.getMonth() + 1;
+  const currentYear = defaultYear || currentDate.getFullYear();
+
+  // Get existing budgets and income for validation
+  const { data: existingBudgets = [] } = useBudgets(currentMonth, currentYear, selectedFamilyId, contextType);
+  const { data: heavensBlessings = [] } = useHeavensBlessings(currentMonth, currentYear, selectedFamilyId, contextType);
+  
+  const totalIncome = heavensBlessings.reduce((sum, blessing) => sum + blessing.amount, 0);
+  const existingBudgetTotal = existingBudgets
+    .filter(budget => !isEditing || budget.id !== initialData?.id)
+    .reduce((sum, budget) => sum + budget.budgeted_amount, 0);
   const form = useForm<BudgetFormData>({
     resolver: zodResolver(budgetSchema),
     defaultValues: {
       category_id: initialData?.category_id || '',
       budgeted_amount: initialData?.budgeted_amount || 0,
-      month: initialData?.month || defaultMonth || currentDate.getMonth() + 1,
-      year: initialData?.year || defaultYear || currentDate.getFullYear(),
+      month: initialData?.month || currentMonth,
+      year: initialData?.year || currentYear,
     },
   });
+
+  // Watch the budgeted amount for real-time validation
+  const watchedAmount = form.watch('budgeted_amount');
+  const totalWithNewBudget = existingBudgetTotal + (watchedAmount || 0);
+  const remainingBudget = totalIncome - existingBudgetTotal;
+  const isOverBudget = totalWithNewBudget > totalIncome;
 
   const onSubmit = async (data: BudgetFormData) => {
     try {
@@ -130,8 +149,20 @@ const BudgetForm = ({ initialData, defaultMonth, defaultYear, onSuccess }: Budge
                       placeholder="0.00"
                       {...field}
                       onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                      className={isOverBudget ? 'border-destructive' : ''}
                     />
                   </FormControl>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    Available: ₦{remainingBudget.toLocaleString()} of ₦{totalIncome.toLocaleString()}
+                  </div>
+                  {isOverBudget && (
+                    <Alert variant="destructive" className="mt-2">
+                      <AlertTriangle className="h-4 w-4" />
+                      <AlertDescription>
+                        Budget exceeds available Heaven's Blessings by ₦{(totalWithNewBudget - totalIncome).toLocaleString()}
+                      </AlertDescription>
+                    </Alert>
+                  )}
                   <FormMessage />
                 </FormItem>
               )}
@@ -184,7 +215,7 @@ const BudgetForm = ({ initialData, defaultMonth, defaultYear, onSuccess }: Budge
               </>
             )}
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button type="submit" className="w-full" disabled={isLoading || (!isEditing && isOverBudget)}>
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {isEditing ? 'Update' : 'Create'} Budget
             </Button>
