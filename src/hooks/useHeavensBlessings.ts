@@ -3,14 +3,21 @@ import { supabase } from '@/integrations/supabase/client';
 import { HeavensBlessings, CreateHeavensBlessings, UpdateHeavensBlessings } from '@/types/database';
 import { useToast } from '@/hooks/use-toast';
 
-export const useHeavensBlessings = (month?: number, year?: number) => {
+export const useHeavensBlessings = (month?: number, year?: number, familyId?: string | null, contextType?: 'individual' | 'family') => {
   return useQuery({
-    queryKey: ['heavens-blessings', month, year],
+    queryKey: ['heavens-blessings', month, year, familyId, contextType],
     queryFn: async () => {
       let query = supabase
         .from('heavens_blessings')
         .select('*')
         .order('date', { ascending: false });
+
+      // Filter by context type and family
+      if (contextType === 'family' && familyId) {
+        query = query.eq('family_id', familyId).eq('income_type', 'family');
+      } else if (contextType === 'individual') {
+        query = query.eq('income_type', 'individual').is('family_id', null);
+      }
 
       if (month && year) {
         const startDate = new Date(year, month - 1, 1).toISOString().split('T')[0];

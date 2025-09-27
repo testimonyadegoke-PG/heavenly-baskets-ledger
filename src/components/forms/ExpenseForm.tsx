@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useCreateExpense, useUpdateExpense } from '@/hooks/useExpenses';
 import { DatabaseExpense } from '@/types/database';
 import { PREDEFINED_CATEGORIES } from '@/types/expenses';
+import { useFamilyContext } from '@/contexts/FamilyContext';
 import { Loader2 } from 'lucide-react';
 
 const expenseSchema = z.object({
@@ -31,6 +32,7 @@ interface ExpenseFormProps {
 const ExpenseForm = ({ initialData, defaultCategoryId, onSuccess }: ExpenseFormProps) => {
   const createMutation = useCreateExpense();
   const updateMutation = useUpdateExpense();
+  const { selectedFamilyId, contextType } = useFamilyContext();
   const isEditing = !!initialData;
 
   const form = useForm<ExpenseFormData>({
@@ -55,6 +57,8 @@ const ExpenseForm = ({ initialData, defaultCategoryId, onSuccess }: ExpenseFormP
           description: data.description,
           date: data.date,
           notes: data.notes,
+          family_id: contextType === 'family' ? selectedFamilyId : undefined,
+          expense_type: contextType,
         });
       }
       form.reset();

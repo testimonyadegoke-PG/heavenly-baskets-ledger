@@ -3,14 +3,21 @@ import { supabase } from '@/integrations/supabase/client';
 import { DatabaseExpense, CreateExpense, UpdateExpense } from '@/types/database';
 import { useToast } from '@/hooks/use-toast';
 
-export const useExpenses = (month?: number, year?: number) => {
+export const useExpenses = (month?: number, year?: number, familyId?: string | null, contextType?: 'individual' | 'family') => {
   return useQuery({
-    queryKey: ['expenses', month, year],
+    queryKey: ['expenses', month, year, familyId, contextType],
     queryFn: async () => {
       let query = supabase
         .from('expenses')
         .select('*')
         .order('date', { ascending: false });
+
+      // Filter by context type and family
+      if (contextType === 'family' && familyId) {
+        query = query.eq('family_id', familyId).eq('expense_type', 'family');
+      } else if (contextType === 'individual') {
+        query = query.eq('expense_type', 'individual').is('family_id', null);
+      }
 
       if (month && year) {
         const startDate = new Date(year, month - 1, 1).toISOString().split('T')[0];

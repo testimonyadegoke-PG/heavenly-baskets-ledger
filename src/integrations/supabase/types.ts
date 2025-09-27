@@ -16,12 +16,14 @@ export type Database = {
     Tables: {
       budgets: {
         Row: {
+          budget_type: string
           budgeted_amount: number
           category_color: string
           category_icon: string
           category_id: string
           category_name: string
           created_at: string
+          family_id: string | null
           id: string
           month: number
           updated_at: string
@@ -29,12 +31,14 @@ export type Database = {
           year: number
         }
         Insert: {
+          budget_type?: string
           budgeted_amount: number
           category_color: string
           category_icon: string
           category_id: string
           category_name: string
           created_at?: string
+          family_id?: string | null
           id?: string
           month: number
           updated_at?: string
@@ -42,19 +46,29 @@ export type Database = {
           year: number
         }
         Update: {
+          budget_type?: string
           budgeted_amount?: number
           category_color?: string
           category_icon?: string
           category_id?: string
           category_name?: string
           created_at?: string
+          family_id?: string | null
           id?: string
           month?: number
           updated_at?: string
           user_id?: string
           year?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "budgets_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       expenses: {
         Row: {
@@ -63,6 +77,8 @@ export type Database = {
           created_at: string
           date: string
           description: string
+          expense_type: string
+          family_id: string | null
           id: string
           notes: string | null
           updated_at: string
@@ -74,6 +90,8 @@ export type Database = {
           created_at?: string
           date: string
           description: string
+          expense_type?: string
+          family_id?: string | null
           id?: string
           notes?: string | null
           updated_at?: string
@@ -85,19 +103,128 @@ export type Database = {
           created_at?: string
           date?: string
           description?: string
+          expense_type?: string
+          family_id?: string | null
           id?: string
           notes?: string | null
           updated_at?: string
           user_id?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "expenses_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      families: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          name?: string
+          updated_at?: string
+        }
         Relationships: []
+      }
+      family_invitations: {
+        Row: {
+          created_at: string
+          expires_at: string
+          family_id: string
+          id: string
+          invited_by: string
+          invited_email: string
+          role: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string
+          family_id: string
+          id?: string
+          invited_by: string
+          invited_email: string
+          role?: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          family_id?: string
+          id?: string
+          invited_by?: string
+          invited_email?: string
+          role?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "family_invitations_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      family_members: {
+        Row: {
+          family_id: string
+          id: string
+          joined_at: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          family_id: string
+          id?: string
+          joined_at?: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          family_id?: string
+          id?: string
+          joined_at?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "family_members_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       heavens_blessings: {
         Row: {
           amount: number
           created_at: string
           date: string
+          family_id: string | null
           id: string
+          income_type: string
           notes: string | null
           source: string
           updated_at: string
@@ -107,7 +234,9 @@ export type Database = {
           amount: number
           created_at?: string
           date: string
+          family_id?: string | null
           id?: string
+          income_type?: string
           notes?: string | null
           source: string
           updated_at?: string
@@ -117,13 +246,23 @@ export type Database = {
           amount?: number
           created_at?: string
           date?: string
+          family_id?: string | null
           id?: string
+          income_type?: string
           notes?: string | null
           source?: string
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "heavens_blessings_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

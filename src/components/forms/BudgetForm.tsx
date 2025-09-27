@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useCreateBudget, useUpdateBudget } from '@/hooks/useBudgets';
 import { Budget } from '@/types/database';
 import { PREDEFINED_CATEGORIES } from '@/types/expenses';
+import { useFamilyContext } from '@/contexts/FamilyContext';
 import { Loader2 } from 'lucide-react';
 
 const budgetSchema = z.object({
@@ -30,6 +31,7 @@ interface BudgetFormProps {
 const BudgetForm = ({ initialData, defaultMonth, defaultYear, onSuccess }: BudgetFormProps) => {
   const createMutation = useCreateBudget();
   const updateMutation = useUpdateBudget();
+  const { selectedFamilyId, contextType } = useFamilyContext();
   const isEditing = !!initialData;
 
   const currentDate = new Date();
@@ -62,6 +64,8 @@ const BudgetForm = ({ initialData, defaultMonth, defaultYear, onSuccess }: Budge
           budgeted_amount: data.budgeted_amount,
           month: data.month,
           year: data.year,
+          family_id: contextType === 'family' ? selectedFamilyId : undefined,
+          budget_type: contextType,
         });
       }
       form.reset();

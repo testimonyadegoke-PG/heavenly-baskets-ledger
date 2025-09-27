@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useCreateHeavensBlessings, useUpdateHeavensBlessings } from '@/hooks/useHeavensBlessings';
 import { HeavensBlessings } from '@/types/database';
+import { useFamilyContext } from '@/contexts/FamilyContext';
 import { Loader2 } from 'lucide-react';
 
 const heavensBlessingsSchema = z.object({
@@ -29,6 +30,7 @@ interface HeavensBlessingsFormProps {
 const HeavensBlessingsForm = ({ initialData, onSuccess }: HeavensBlessingsFormProps) => {
   const createMutation = useCreateHeavensBlessings();
   const updateMutation = useUpdateHeavensBlessings();
+  const { selectedFamilyId, contextType } = useFamilyContext();
   const isEditing = !!initialData;
 
   const form = useForm<HeavensBlessingsFormData>({
@@ -51,6 +53,8 @@ const HeavensBlessingsForm = ({ initialData, onSuccess }: HeavensBlessingsFormPr
           source: data.source,
           date: data.date,
           notes: data.notes,
+          family_id: contextType === 'family' ? selectedFamilyId : undefined,
+          income_type: contextType,
         });
       }
       form.reset();

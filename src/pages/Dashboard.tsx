@@ -3,6 +3,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useHeavensBlessings } from '@/hooks/useHeavensBlessings';
 import { useBudgets } from '@/hooks/useBudgets';
 import { useExpenses } from '@/hooks/useExpenses';
+import { useFamilyContext } from '@/contexts/FamilyContext';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import MonthSelector from '@/components/navigation/MonthSelector';
 import MainNavigation from '@/components/navigation/MainNavigation';
@@ -13,6 +14,7 @@ import HeavensBlessingsForm from '@/components/forms/HeavensBlessingsForm';
 import BudgetForm from '@/components/forms/BudgetForm';
 import ExpenseForm from '@/components/forms/ExpenseForm';
 import RecentExpenses from '@/components/expenses/RecentExpenses';
+import { FamilySelector } from '@/components/family/FamilySelector';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -22,13 +24,14 @@ import { LogOut, Plus } from 'lucide-react';
 
 const Dashboard = () => {
   const { signOut } = useAuth();
+  const { selectedFamilyId, contextType } = useFamilyContext();
   const currentDate = new Date();
   const [selectedMonth, setSelectedMonth] = useState(currentDate.getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(currentDate.getFullYear());
   
-  const { data: heavensBlessings = [] } = useHeavensBlessings(selectedMonth, selectedYear);
-  const { data: budgets = [] } = useBudgets(selectedMonth, selectedYear);
-  const { data: expenses = [] } = useExpenses(selectedMonth, selectedYear);
+  const { data: heavensBlessings = [] } = useHeavensBlessings(selectedMonth, selectedYear, selectedFamilyId, contextType);
+  const { data: budgets = [] } = useBudgets(selectedMonth, selectedYear, selectedFamilyId, contextType);
+  const { data: expenses = [] } = useExpenses(selectedMonth, selectedYear, selectedFamilyId, contextType);
 
   const totalIncome = heavensBlessings.reduce((sum, blessing) => sum + blessing.amount, 0);
   const totalSpent = expenses.reduce((sum, expense) => sum + expense.amount, 0);
@@ -97,7 +100,10 @@ const Dashboard = () => {
         </div>
 
         <div className="container mx-auto px-4 py-6">
-          <MainNavigation />
+          <FamilySelector />
+          <div className="mt-6">
+            <MainNavigation />
+          </div>
         </div>
 
         <div className="container mx-auto px-4 py-6">

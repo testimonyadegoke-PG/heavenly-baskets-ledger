@@ -3,17 +3,25 @@ import { supabase } from '@/integrations/supabase/client';
 import { Budget, CreateBudget, UpdateBudget } from '@/types/database';
 import { useToast } from '@/hooks/use-toast';
 
-export const useBudgets = (month: number, year: number) => {
+export const useBudgets = (month: number, year: number, familyId?: string | null, contextType?: 'individual' | 'family') => {
   return useQuery({
-    queryKey: ['budgets', month, year],
+    queryKey: ['budgets', month, year, familyId, contextType],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from('budgets')
         .select('*')
         .eq('month', month)
         .eq('year', year)
         .order('category_name');
 
+      // Filter by context type and family
+      if (contextType === 'family' && familyId) {
+        query = query.eq('family_id', familyId).eq('budget_type', 'family');
+      } else if (contextType === 'individual') {
+        query = query.eq('budget_type', 'individual').is('family_id', null);
+      }
+
+      const { data, error } = await query;
       if (error) throw error;
       return data as Budget[];
     },
