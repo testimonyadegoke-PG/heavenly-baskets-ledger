@@ -1,7 +1,7 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Home, PieChart, Sparkles, CreditCard } from 'lucide-react';
+import { Home, PieChart, Sparkles, CreditCard, Palette, Target } from 'lucide-react';
 
 interface NavigationItem {
   id: string;
@@ -43,6 +43,20 @@ const MainNavigation = () => {
       icon: <CreditCard className="h-5 w-5" />,
       path: '/expenses',
       description: 'Monitor spending'
+    },
+    {
+      id: 'templates',
+      label: 'Templates',
+      icon: <Target className="h-5 w-5" />,
+      path: '/budget-templates',
+      description: 'Budget templates'
+    },
+    {
+      id: 'categories',
+      label: 'Categories',
+      icon: <Palette className="h-5 w-5" />,
+      path: '/categories',
+      description: 'Manage categories'
     }
   ];
 
@@ -54,7 +68,7 @@ const MainNavigation = () => {
   return (
     <Card>
       <CardContent className="p-4">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
           {navigationItems.map((item) => (
             <Button
               key={item.id}

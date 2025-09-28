@@ -138,6 +138,45 @@ export interface CreateFamilyInvitation {
   role: 'admin' | 'parent' | 'child' | 'member';
 }
 
+export interface Category {
+  id: string;
+  name: string;
+  icon: string;
+  color: string;
+  category_type: 'user' | 'family';
+  user_id?: string;
+  family_id?: string;
+  is_default: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateCategory {
+  name: string;
+  icon: string;
+  color: string;
+  category_type: 'user' | 'family';
+  family_id?: string;
+}
+
+export interface BudgetTemplate {
+  id: string;
+  name: string;
+  user_id?: string;
+  family_id?: string;
+  template_type: 'user' | 'family';
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BudgetTemplateItem {
+  id: string;
+  template_id: string;
+  category_id: string;
+  percentage: number;
+  created_at: string;
+}
+
 export interface CreateFamilyMember {
   family_id: string;
   user_id: string;

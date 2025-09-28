@@ -11,10 +11,12 @@ import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import BudgetDetail from "./pages/BudgetDetail";
 import IncomeDetail from "./pages/IncomeDetail";
-import ExpenseDetail from "./pages/ExpenseDetail";
 import BudgetsList from "./pages/BudgetsList";
 import IncomeList from "./pages/IncomeList";
 import ExpensesList from "./pages/ExpensesList";
+import ExpenseDetail from "./pages/ExpenseDetail";
+import Categories from "@/pages/Categories";
+import BudgetTemplates from "@/pages/BudgetTemplates";
 
 const queryClient = new QueryClient();
 
@@ -35,6 +37,8 @@ const App = () => (
             <Route path="/income/:id" element={<IncomeDetail />} />
             <Route path="/expenses" element={<ExpensesList />} />
             <Route path="/expenses/:id" element={<ExpenseDetail />} />
+            <Route path="/categories" element={<Categories />} />
+            <Route path="/budget-templates" element={<BudgetTemplates />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
             </Routes>

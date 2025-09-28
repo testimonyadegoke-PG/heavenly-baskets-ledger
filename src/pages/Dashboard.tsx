@@ -5,7 +5,7 @@ import { useBudgets } from '@/hooks/useBudgets';
 import { useExpenses } from '@/hooks/useExpenses';
 import { useFamilyContext } from '@/contexts/FamilyContext';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
-import MonthSelector from '@/components/navigation/MonthSelector';
+import DateFilter, { DateRange } from '@/components/navigation/DateFilter';
 import MainNavigation from '@/components/navigation/MainNavigation';
 import MetricsCards from '@/components/dashboard/MetricsCards';
 import CategoryCard from '@/components/dashboard/CategoryCard';
@@ -25,13 +25,19 @@ import { LogOut, Plus } from 'lucide-react';
 const Dashboard = () => {
   const { signOut } = useAuth();
   const { selectedFamilyId, contextType } = useFamilyContext();
-  const currentDate = new Date();
-  const [selectedMonth, setSelectedMonth] = useState(currentDate.getMonth() + 1);
-  const [selectedYear, setSelectedYear] = useState(currentDate.getFullYear());
+  const [dateRange, setDateRange] = useState<DateRange>(() => {
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    return { startDate: startOfMonth, endDate: endOfMonth };
+  });
   
-  const { data: heavensBlessings = [] } = useHeavensBlessings(selectedMonth, selectedYear, selectedFamilyId, contextType);
-  const { data: budgets = [] } = useBudgets(selectedMonth, selectedYear, selectedFamilyId, contextType);
-  const { data: expenses = [] } = useExpenses(selectedMonth, selectedYear, selectedFamilyId, contextType);
+  const monthIndex = dateRange.startDate.getMonth() + 1;
+  const currentYear = dateRange.startDate.getFullYear();
+  
+  const { data: heavensBlessings = [] } = useHeavensBlessings(monthIndex, currentYear, selectedFamilyId, contextType);
+  const { data: budgets = [] } = useBudgets(monthIndex, currentYear, selectedFamilyId, contextType);
+  const { data: expenses = [] } = useExpenses(monthIndex, currentYear, selectedFamilyId, contextType);
 
   const totalIncome = heavensBlessings.reduce((sum, blessing) => sum + blessing.amount, 0);
   const totalSpent = expenses.reduce((sum, expense) => sum + expense.amount, 0);
@@ -53,8 +59,8 @@ const Dashboard = () => {
   });
 
   const currentData: MonthlyData = {
-    month: new Date(selectedYear, selectedMonth - 1).toLocaleDateString('default', { month: 'long' }),
-    year: selectedYear,
+    month: new Date(currentYear, monthIndex - 1).toLocaleDateString('default', { month: 'long' }),
+    year: currentYear,
     heavensBlessings: totalIncome,
     totalSpent,
     twelveBaskets,
@@ -69,11 +75,6 @@ const Dashboard = () => {
     })),
   };
 
-  const handleMonthChange = (month: string, year: number) => {
-    const monthIndex = new Date(`${month} 1, ${year}`).getMonth() + 1;
-    setSelectedMonth(monthIndex);
-    setSelectedYear(year);
-  };
 
   return (
     <ProtectedRoute>
@@ -91,10 +92,9 @@ const Dashboard = () => {
               </Button>
             </div>
             
-            <MonthSelector 
-              currentMonth={currentData.month} 
-              currentYear={currentData.year}
-              onMonthChange={handleMonthChange}
+            <DateFilter 
+              currentRange={dateRange}
+              onDateChange={setDateRange}
             />
           </div>
         </div>
@@ -131,8 +131,8 @@ const Dashboard = () => {
                       <DialogTitle>Create Budget</DialogTitle>
                     </DialogHeader>
                     <BudgetForm 
-                      defaultMonth={selectedMonth}
-                      defaultYear={selectedYear}
+                      defaultMonth={monthIndex}
+                      defaultYear={currentYear}
                     />
                   </DialogContent>
                 </Dialog>

@@ -14,6 +14,75 @@ export type Database = {
   }
   public: {
     Tables: {
+      budget_template_items: {
+        Row: {
+          category_id: string | null
+          created_at: string
+          id: string
+          percentage: number
+          template_id: string | null
+        }
+        Insert: {
+          category_id?: string | null
+          created_at?: string
+          id?: string
+          percentage: number
+          template_id?: string | null
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string
+          id?: string
+          percentage?: number
+          template_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "budget_template_items_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "budget_template_items_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "budget_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      budget_templates: {
+        Row: {
+          created_at: string
+          family_id: string | null
+          id: string
+          name: string
+          template_type: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          family_id?: string | null
+          id?: string
+          name: string
+          template_type?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          family_id?: string | null
+          id?: string
+          name?: string
+          template_type?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       budgets: {
         Row: {
           budget_type: string
@@ -69,6 +138,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      categories: {
+        Row: {
+          category_type: string
+          color: string
+          created_at: string
+          family_id: string | null
+          icon: string
+          id: string
+          is_default: boolean | null
+          name: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          category_type?: string
+          color?: string
+          created_at?: string
+          family_id?: string | null
+          icon?: string
+          id?: string
+          is_default?: boolean | null
+          name: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          category_type?: string
+          color?: string
+          created_at?: string
+          family_id?: string | null
+          icon?: string
+          id?: string
+          is_default?: boolean | null
+          name?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
       }
       expenses: {
         Row: {
@@ -269,7 +377,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      create_family: {
+        Args: { p_name: string }
+        Returns: {
+          created_at: string
+          created_by: string
+          id: string
+          name: string
+          updated_at: string
+        }
+      }
     }
     Enums: {
       [_ in never]: never
