@@ -372,6 +372,96 @@ export type Database = {
           },
         ]
       }
+      insights: {
+        Row: {
+          confidence_score: number
+          created_at: string
+          data_period_end: string
+          data_period_start: string
+          description: string
+          family_id: string | null
+          id: string
+          is_active: boolean
+          recommendations: Json
+          title: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          confidence_score?: number
+          created_at?: string
+          data_period_end: string
+          data_period_start: string
+          description: string
+          family_id?: string | null
+          id?: string
+          is_active?: boolean
+          recommendations?: Json
+          title: string
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          confidence_score?: number
+          created_at?: string
+          data_period_end?: string
+          data_period_start?: string
+          description?: string
+          family_id?: string | null
+          id?: string
+          is_active?: boolean
+          recommendations?: Json
+          title?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          action_url: string | null
+          category: string
+          created_at: string
+          id: string
+          message: string
+          metadata: Json | null
+          read: boolean
+          title: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          action_url?: string | null
+          category?: string
+          created_at?: string
+          id?: string
+          message: string
+          metadata?: Json | null
+          read?: boolean
+          title: string
+          type?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          action_url?: string | null
+          category?: string
+          created_at?: string
+          id?: string
+          message?: string
+          metadata?: Json | null
+          read?: boolean
+          title?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

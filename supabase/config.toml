@@ -1,1 +1,7 @@
 project_id = "odhsnrtwlknvlbqugpiy"
+
+[functions.financial-intelligence]
+verify_jwt = false
+
+[functions.notification-service]
+verify_jwt = false

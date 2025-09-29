@@ -17,6 +17,7 @@ import ExpensesList from "./pages/ExpensesList";
 import ExpenseDetail from "./pages/ExpenseDetail";
 import Categories from "@/pages/Categories";
 import BudgetTemplates from "@/pages/BudgetTemplates";
+import Insights from "@/pages/Insights";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +40,7 @@ const App = () => (
             <Route path="/expenses/:id" element={<ExpenseDetail />} />
             <Route path="/categories" element={<Categories />} />
             <Route path="/budget-templates" element={<BudgetTemplates />} />
+            <Route path="/insights" element={<Insights />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
             </Routes>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useHeavensBlessings } from '@/hooks/useHeavensBlessings';
 import { useBudgets } from '@/hooks/useBudgets';
@@ -15,6 +15,8 @@ import BudgetForm from '@/components/forms/BudgetForm';
 import ExpenseForm from '@/components/forms/ExpenseForm';
 import RecentExpenses from '@/components/expenses/RecentExpenses';
 import { FamilySelector } from '@/components/family/FamilySelector';
+import { InsightsPanel } from '@/components/insights/InsightsPanel';
+import { useCheckBudgetAlerts, useCheckSpendingAlerts } from '@/hooks/useNotifications';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -25,12 +27,31 @@ import { LogOut, Plus } from 'lucide-react';
 const Dashboard = () => {
   const { signOut } = useAuth();
   const { selectedFamilyId, contextType } = useFamilyContext();
+  const checkBudgetAlerts = useCheckBudgetAlerts();
+  const checkSpendingAlerts = useCheckSpendingAlerts();
+  
   const [dateRange, setDateRange] = useState<DateRange>(() => {
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
     return { startDate: startOfMonth, endDate: endOfMonth };
   });
+
+  // Check for budget and spending alerts on component mount
+  useEffect(() => {
+    const checkAlerts = async () => {
+      try {
+        await Promise.all([
+          checkBudgetAlerts.mutateAsync(contextType === 'family' ? selectedFamilyId || undefined : undefined),
+          checkSpendingAlerts.mutateAsync(contextType === 'family' ? selectedFamilyId || undefined : undefined)
+        ]);
+      } catch (error) {
+        console.error('Error checking alerts:', error);
+      }
+    };
+
+    checkAlerts();
+  }, [selectedFamilyId, contextType]);
   
   const monthIndex = dateRange.startDate.getMonth() + 1;
   const currentYear = dateRange.startDate.getFullYear();
@@ -173,6 +194,11 @@ const Dashboard = () => {
 
           <div className="text-center text-sm text-muted-foreground border-t pt-6">
             <p className="italic">"For where your treasure is, there your heart will be also." - Matthew 6:21</p>
+          </div>
+
+          {/* Financial Intelligence Panel */}
+          <div className="mt-8">
+            <InsightsPanel />
           </div>
         </div>
       </div>

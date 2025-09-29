@@ -1,8 +1,9 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Home, PieChart, Sparkles, CreditCard, Palette, Target } from 'lucide-react';
+import { Home, PieChart, Sparkles, CreditCard, Palette, Target, Brain } from 'lucide-react';
 import { MobileNavigation } from './MobileNavigation';
+import { NotificationCenter } from '@/components/notifications/NotificationCenter';
 
 interface NavigationItem {
   id: string;
@@ -58,6 +59,13 @@ const MainNavigation = () => {
       icon: <Palette className="h-5 w-5" />,
       path: '/categories',
       description: 'Manage categories'
+    },
+    {
+      id: 'insights',
+      label: 'Insights',
+      icon: <Brain className="h-5 w-5" />,
+      path: '/insights',
+      description: 'AI insights'
     }
   ];
 
@@ -70,28 +78,31 @@ const MainNavigation = () => {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <MobileNavigation />
+        <div className="hidden md:block">
+          <NotificationCenter />
+        </div>
       </div>
       
-      <Card className="hidden md:block">
-        <CardContent className="p-4">
-          <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
-            {navigationItems.map((item) => (
-              <Button
-                key={item.id}
-                variant={isActive(item.path) ? "default" : "outline"}
-                className={`h-auto p-3 flex-col gap-2 ${isActive(item.path) ? 'shadow-md' : 'hover:shadow-sm'}`}
-                onClick={() => navigate(item.path)}
-              >
-                {item.icon}
-                <div className="text-center">
-                  <div className="font-medium text-xs">{item.label}</div>
-                  <div className="text-xs opacity-70">{item.description}</div>
-                </div>
-              </Button>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+        <Card className="hidden md:block">
+          <CardContent className="p-4">
+            <div className="grid grid-cols-2 md:grid-cols-7 gap-3">
+              {navigationItems.map((item) => (
+                <Button
+                  key={item.id}
+                  variant={isActive(item.path) ? "default" : "outline"}
+                  className={`h-auto p-3 flex-col gap-2 ${isActive(item.path) ? 'shadow-md' : 'hover:shadow-sm'}`}
+                  onClick={() => navigate(item.path)}
+                >
+                  {item.icon}
+                  <div className="text-center">
+                    <div className="font-medium text-xs">{item.label}</div>
+                    <div className="text-xs opacity-70">{item.description}</div>
+                  </div>
+                </Button>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
     </div>
   );
 };

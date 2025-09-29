@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Menu, Home, PieChart, Sparkles, CreditCard, Palette, Target, X } from 'lucide-react';
+import { Menu, Home, PieChart, Sparkles, CreditCard, Palette, Target, X, Brain } from 'lucide-react';
 
 const navigationItems = [
   {
@@ -42,11 +42,11 @@ const navigationItems = [
     description: 'Budget templates'
   },
   {
-    id: 'categories',
-    label: 'Categories',
-    icon: Palette,
-    path: '/categories',
-    description: 'Manage categories'
+    id: 'insights',
+    label: 'Insights',
+    icon: Brain,
+    path: '/insights',
+    description: 'AI insights'
   }
 ];
 
