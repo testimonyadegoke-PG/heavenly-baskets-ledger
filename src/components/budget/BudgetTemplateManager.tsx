@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -10,9 +10,11 @@ import { Progress } from '@/components/ui/progress';
 import { useBudgetTemplates, useBudgetTemplateItems, useCreateBudgetTemplate, useApplyBudgetTemplate } from '@/hooks/useBudgetTemplates';
 import { useCategories } from '@/hooks/useCategories';
 import { useFamilyContext } from '@/contexts/FamilyContext';
-import { Plus, Percent, Target, Trash2 } from 'lucide-react';
+import { Plus, Percent, Target, Trash2, Home } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export const BudgetTemplateManager = () => {
+  const navigate = useNavigate();
   const { selectedFamilyId, contextType } = useFamilyContext();
   const { data: templates = [], isLoading } = useBudgetTemplates(selectedFamilyId, contextType);
   const { data: categories = [] } = useCategories(selectedFamilyId, contextType);
@@ -25,6 +27,17 @@ export const BudgetTemplateManager = () => {
   const [templateItems, setTemplateItems] = useState<Array<{ category_id: string; percentage: number }>>([]);
   const [selectedTemplate, setSelectedTemplate] = useState<string>('');
   const [totalIncome, setTotalIncome] = useState<number>(0);
+
+  // Pre-fill categories when dialog opens or categories change
+  useEffect(() => {
+    if (isCreateOpen && categories.length > 0 && templateItems.length === 0) {
+      const preFilledItems = categories.map(category => ({
+        category_id: category.id,
+        percentage: 0
+      }));
+      setTemplateItems(preFilledItems);
+    }
+  }, [isCreateOpen, categories, templateItems.length]);
 
   const resetForm = () => {
     setTemplateName('');
@@ -87,7 +100,18 @@ export const BudgetTemplateManager = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Budget Templates</h2>
+        <div className="flex items-center gap-4">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => navigate('/')}
+            className="flex items-center gap-2"
+          >
+            <Home className="h-4 w-4" />
+            Dashboard
+          </Button>
+          <h2 className="text-2xl font-bold">Budget Templates</h2>
+        </div>
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>
             <Button onClick={() => resetForm()}>
@@ -136,58 +160,62 @@ export const BudgetTemplateManager = () => {
                 </div>
 
                 <div className="space-y-3 max-h-60 overflow-y-auto">
-                  {templateItems.map((item, index) => (
-                    <div key={index} className="grid grid-cols-12 gap-2 items-center">
-                      <div className="col-span-6">
-                        <Select 
-                          value={item.category_id} 
-                          onValueChange={(value) => updateTemplateItem(index, 'category_id', value)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select category" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {categories.map(category => (
-                              <SelectItem key={category.id} value={category.id}>
-                                <span className="flex items-center gap-2">
-                                  <span>{category.icon}</span>
-                                  <span>{category.name}</span>
-                                </span>
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="col-span-4">
-                        <div className="relative">
-                          <Input
-                            type="number"
-                            min="0"
-                            max="100"
-                            value={item.percentage || ''}
-                            onChange={(e) => updateTemplateItem(index, 'percentage', parseFloat(e.target.value) || 0)}
-                            placeholder="0"
-                          />
-                          <Percent className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                  {templateItems.map((item, index) => {
+                    const category = categories.find(cat => cat.id === item.category_id);
+                    return (
+                      <div key={index} className="grid grid-cols-12 gap-2 items-center p-2 rounded border">
+                        <div className="col-span-6 flex items-center gap-2">
+                          {category && (
+                            <>
+                              <span>{category.icon}</span>
+                              <span className="text-sm font-medium">{category.name}</span>
+                            </>
+                          )}
+                        </div>
+                        <div className="col-span-4">
+                          <div className="relative">
+                            <Input
+                              type="number"
+                              min="0"
+                              max="100"
+                              value={item.percentage || ''}
+                              onChange={(e) => updateTemplateItem(index, 'percentage', parseFloat(e.target.value) || 0)}
+                              placeholder="0"
+                            />
+                            <Percent className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                          </div>
+                        </div>
+                        <div className="col-span-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeTemplateItem(index)}
+                            className="text-destructive hover:text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </div>
                       </div>
-                      <div className="col-span-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeTemplateItem(index)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
 
-                <Button onClick={addTemplateItem} variant="outline" className="w-full">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Category
-                </Button>
+                {templateItems.length === 0 && (
+                  <Button 
+                    onClick={() => {
+                      const preFilledItems = categories.map(category => ({
+                        category_id: category.id,
+                        percentage: 0
+                      }));
+                      setTemplateItems(preFilledItems);
+                    }} 
+                    variant="outline" 
+                    className="w-full"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Load All Categories
+                  </Button>
+                )}
 
                 <Progress value={getTotalPercentage()} className="w-full" />
 

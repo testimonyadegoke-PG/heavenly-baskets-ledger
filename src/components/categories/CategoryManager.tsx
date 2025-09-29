@@ -9,12 +9,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { useCategories, useCreateCategory, useUpdateCategory, useDeleteCategory } from '@/hooks/useCategories';
 import { useFamilyContext } from '@/contexts/FamilyContext';
-import { Plus, Edit2, Trash2, Palette } from 'lucide-react';
+import { Plus, Edit2, Trash2, Palette, Home } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const CATEGORY_ICONS = ['💰', '🍽️', '🚗', '🏠', '⚡', '🏥', '🎬', '🛍️', '📚', '🧴', '🎮', '📱', '✈️', '🎸', '⚽'];
 const CATEGORY_COLORS = ['#3B82F6', '#10B981', '#8B5CF6', '#F59E0B', '#EF4444', '#EC4899', '#06B6D4', '#84CC16', '#F97316', '#6B7280'];
 
 export const CategoryManager = () => {
+  const navigate = useNavigate();
   const { selectedFamilyId, contextType } = useFamilyContext();
   const { data: categories = [], isLoading } = useCategories(selectedFamilyId, contextType);
   const createCategory = useCreateCategory();
@@ -89,7 +91,18 @@ export const CategoryManager = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Category Management</h2>
+        <div className="flex items-center gap-4">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => navigate('/')}
+            className="flex items-center gap-2"
+          >
+            <Home className="h-4 w-4" />
+            Dashboard
+          </Button>
+          <h2 className="text-2xl font-bold">Category Management</h2>
+        </div>
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>
             <Button onClick={() => resetForm()}>
