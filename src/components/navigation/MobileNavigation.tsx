@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
+import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider } from '@/components/ui/sidebar';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Menu, Home, PieChart, Sparkles, CreditCard, Palette, Target, X, Brain } from 'lucide-react';
 
@@ -79,34 +79,36 @@ export const MobileNavigation = () => {
             <X className="h-4 w-4" />
           </Button>
         </div>
-        <Sidebar className="border-0">
-          <SidebarContent>
-            <SidebarGroup>
-              <SidebarGroupLabel>Main Menu</SidebarGroupLabel>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {navigationItems.map((item) => (
-                    <SidebarMenuItem key={item.id}>
-                      <SidebarMenuButton
-                        asChild
-                        isActive={isActive(item.path)}
-                        onClick={() => handleNavigate(item.path)}
-                      >
-                        <button className="flex items-center gap-3 w-full">
-                          <item.icon className="h-4 w-4" />
-                          <div className="text-left">
-                            <div className="font-medium">{item.label}</div>
-                            <div className="text-xs text-muted-foreground">{item.description}</div>
-                          </div>
-                        </button>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-          </SidebarContent>
-        </Sidebar>
+        <SidebarProvider>
+          <Sidebar className="border-0">
+            <SidebarContent>
+              <SidebarGroup>
+                <SidebarGroupLabel>Main Menu</SidebarGroupLabel>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {navigationItems.map((item) => (
+                      <SidebarMenuItem key={item.id}>
+                        <SidebarMenuButton
+                          asChild
+                          isActive={isActive(item.path)}
+                          onClick={() => handleNavigate(item.path)}
+                        >
+                          <button className="flex items-center gap-3 w-full">
+                            <item.icon className="h-4 w-4" />
+                            <div className="text-left">
+                              <div className="font-medium">{item.label}</div>
+                              <div className="text-xs text-muted-foreground">{item.description}</div>
+                            </div>
+                          </button>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    ))}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            </SidebarContent>
+          </Sidebar>
+        </SidebarProvider>
       </SheetContent>
     </Sheet>
   );
