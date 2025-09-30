@@ -45,11 +45,13 @@ export const FamilySelector = () => {
               <SelectValue placeholder="Select a family" />
             </SelectTrigger>
             <SelectContent>
-              {availableFamilies.map((membership) => (
-                <SelectItem key={membership.family_id} value={membership.family_id}>
-                  {membership.families.name} ({membership.role})
-                </SelectItem>
-              ))}
+              {availableFamilies
+                .filter((membership) => membership.families?.name)
+                .map((membership) => (
+                  <SelectItem key={membership.family_id} value={membership.family_id}>
+                    {membership.families.name} ({membership.role})
+                  </SelectItem>
+                ))}
             </SelectContent>
           </Select>
 
