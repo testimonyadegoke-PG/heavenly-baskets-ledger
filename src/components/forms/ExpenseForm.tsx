@@ -6,11 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useCreateExpense, useUpdateExpense } from '@/hooks/useExpenses';
 import { DatabaseExpense } from '@/types/database';
-import { PREDEFINED_CATEGORIES } from '@/types/expenses';
 import { useFamilyContext } from '@/contexts/FamilyContext';
+import { CategorySelect } from '@/components/shared/CategorySelect';
 import { Loader2 } from 'lucide-react';
 
 const expenseSchema = z.object({
@@ -86,23 +85,13 @@ const ExpenseForm = ({ initialData, defaultCategoryId, onSuccess }: ExpenseFormP
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Category</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a category" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {PREDEFINED_CATEGORIES.map((category) => (
-                        <SelectItem key={category.id} value={category.id}>
-                          <span className="flex items-center gap-2">
-                            <span>{category.icon}</span>
-                            <span>{category.name}</span>
-                          </span>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <FormControl>
+                    <CategorySelect
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      placeholder="Select a category"
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}

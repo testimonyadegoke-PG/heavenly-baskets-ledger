@@ -9,9 +9,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useCreateBudget, useUpdateBudget, useBudgets } from '@/hooks/useBudgets';
 import { useHeavensBlessings } from '@/hooks/useHeavensBlessings';
+import { useCategories } from '@/hooks/useCategories';
 import { Budget } from '@/types/database';
-import { PREDEFINED_CATEGORIES } from '@/types/expenses';
 import { useFamilyContext } from '@/contexts/FamilyContext';
+import { CategorySelect } from '@/components/shared/CategorySelect';
 import { Loader2, AlertTriangle } from 'lucide-react';
 
 const budgetSchema = z.object({
@@ -34,6 +35,7 @@ const BudgetForm = ({ initialData, defaultMonth, defaultYear, onSuccess }: Budge
   const createMutation = useCreateBudget();
   const updateMutation = useUpdateBudget();
   const { selectedFamilyId, contextType } = useFamilyContext();
+  const { data: categories = [] } = useCategories(selectedFamilyId, contextType);
   const isEditing = !!initialData;
 
   const currentDate = new Date();
@@ -72,7 +74,7 @@ const BudgetForm = ({ initialData, defaultMonth, defaultYear, onSuccess }: Budge
           data: { budgeted_amount: data.budgeted_amount } 
         });
       } else {
-        const selectedCategory = PREDEFINED_CATEGORIES.find(cat => cat.id === data.category_id);
+        const selectedCategory = categories.find(cat => cat.id === data.category_id);
         if (!selectedCategory) throw new Error('Category not found');
 
         await createMutation.mutateAsync({
@@ -113,23 +115,13 @@ const BudgetForm = ({ initialData, defaultMonth, defaultYear, onSuccess }: Budge
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Category</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a category" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {PREDEFINED_CATEGORIES.map((category) => (
-                          <SelectItem key={category.id} value={category.id}>
-                            <span className="flex items-center gap-2">
-                              <span>{category.icon}</span>
-                              <span>{category.name}</span>
-                            </span>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <FormControl>
+                      <CategorySelect
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        placeholder="Select a category"
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}

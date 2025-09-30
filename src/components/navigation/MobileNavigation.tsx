@@ -75,9 +75,6 @@ export const MobileNavigation = () => {
       <SheetContent side="left" className="w-80 p-0">
         <div className="flex items-center justify-between p-4 border-b">
           <h2 className="text-lg font-semibold">Navigation</h2>
-          <Button variant="ghost" size="sm" onClick={() => setIsOpen(false)}>
-            <X className="h-4 w-4" />
-          </Button>
         </div>
         <SidebarProvider>
           <Sidebar className="border-0">

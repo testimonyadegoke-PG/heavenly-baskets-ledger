@@ -3,9 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { PREDEFINED_CATEGORIES } from '@/types/expenses';
+import { CategorySelect } from '@/components/shared/CategorySelect';
 import { Plus, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -68,7 +67,7 @@ export default function AddExpenseForm({ onAddExpense }: AddExpenseFormProps) {
 
     toast({
       title: "Expense Added",
-      description: `₦${amount.toLocaleString()} added to ${PREDEFINED_CATEGORIES.find(c => c.id === formData.category)?.name}`,
+      description: `₦${amount.toLocaleString()} added successfully`,
     });
   };
 
@@ -131,21 +130,11 @@ export default function AddExpenseForm({ onAddExpense }: AddExpenseFormProps) {
 
           <div className="space-y-2">
             <Label htmlFor="category">Category *</Label>
-            <Select value={formData.category} onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a category" />
-              </SelectTrigger>
-              <SelectContent>
-                {PREDEFINED_CATEGORIES.map((category) => (
-                  <SelectItem key={category.id} value={category.id}>
-                    <div className="flex items-center gap-2">
-                      <span>{category.icon}</span>
-                      <span>{category.name}</span>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <CategorySelect
+              value={formData.category}
+              onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}
+              placeholder="Select a category"
+            />
           </div>
 
           <div className="space-y-2">

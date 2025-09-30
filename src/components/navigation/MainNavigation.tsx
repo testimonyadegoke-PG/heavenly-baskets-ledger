@@ -94,9 +94,9 @@ const MainNavigation = () => {
                   onClick={() => navigate(item.path)}
                 >
                   {item.icon}
-                  <div className="text-center">
-                    <div className="font-medium text-xs">{item.label}</div>
-                    <div className="text-xs opacity-70">{item.description}</div>
+                  <div className="text-center w-full">
+                    <div className="font-medium text-xs truncate">{item.label}</div>
+                    <div className="text-xs opacity-70 hidden lg:block truncate">{item.description}</div>
                   </div>
                 </Button>
               ))}
