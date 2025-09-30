@@ -22,37 +22,39 @@ export const UserInvitations = () => {
 
   return (
     <div className="space-y-4">
-      {invitations.map((invitation) => (
-        <Card key={invitation.id}>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">{invitation.families.name}</CardTitle>
-            <CardDescription>
-              You've been invited to join as a {invitation.role}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex gap-2">
-              <Button
-                size="sm"
-                onClick={() => acceptInvitation.mutate(invitation.id)}
-                disabled={acceptInvitation.isPending}
-              >
-                <Check className="h-4 w-4 mr-1" />
-                Accept
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => declineInvitation.mutate(invitation.id)}
-                disabled={declineInvitation.isPending}
-              >
-                <X className="h-4 w-4 mr-1" />
-                Decline
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+      {invitations
+        .filter((invitation) => invitation.families?.name)
+        .map((invitation) => (
+          <Card key={invitation.id}>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">{invitation.families.name}</CardTitle>
+              <CardDescription>
+                You've been invited to join as a {invitation.role}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  onClick={() => acceptInvitation.mutate(invitation.id)}
+                  disabled={acceptInvitation.isPending}
+                >
+                  <Check className="h-4 w-4 mr-1" />
+                  Accept
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => declineInvitation.mutate(invitation.id)}
+                  disabled={declineInvitation.isPending}
+                >
+                  <X className="h-4 w-4 mr-1" />
+                  Decline
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
     </div>
   );
 };
