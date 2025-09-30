@@ -462,6 +462,62 @@ export type Database = {
         }
         Relationships: []
       }
+      sample_budget_template_items: {
+        Row: {
+          category_icon: string
+          category_name: string
+          created_at: string | null
+          id: string
+          percentage: number
+          template_id: string
+        }
+        Insert: {
+          category_icon?: string
+          category_name: string
+          created_at?: string | null
+          id?: string
+          percentage: number
+          template_id: string
+        }
+        Update: {
+          category_icon?: string
+          category_name?: string
+          created_at?: string | null
+          id?: string
+          percentage?: number
+          template_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sample_budget_template_items_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "sample_budget_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sample_budget_templates: {
+        Row: {
+          created_at: string | null
+          description: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string | null
+          description: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

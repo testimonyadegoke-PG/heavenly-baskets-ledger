@@ -25,6 +25,13 @@ export const FamilyProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [familyMemberships, selectedFamilyId, contextType]);
 
+  // Refresh family memberships when families are added
+  useEffect(() => {
+    if (contextType === 'family' && familyMemberships.length > 0 && !selectedFamilyId) {
+      setSelectedFamilyId(familyMemberships[0].family_id);
+    }
+  }, [familyMemberships.length, contextType]);
+
   const value = {
     selectedFamilyId,
     setSelectedFamilyId,

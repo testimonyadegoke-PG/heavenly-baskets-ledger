@@ -45,7 +45,13 @@ export const CategorySelect = ({ value, onValueChange, placeholder = "Select a c
 
   return (
     <>
-      <Select value={value} onValueChange={onValueChange}>
+      <Select value={value} onValueChange={(val) => {
+        if (val === "__add_new__") {
+          setIsCreateOpen(true);
+        } else {
+          onValueChange(val);
+        }
+      }}>
         <SelectTrigger>
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
@@ -58,10 +64,7 @@ export const CategorySelect = ({ value, onValueChange, placeholder = "Select a c
               </span>
             </SelectItem>
           ))}
-          <SelectItem value="__add_new__" onSelect={(e) => {
-            e.preventDefault();
-            setIsCreateOpen(true);
-          }}>
+          <SelectItem value="__add_new__">
             <span className="flex items-center gap-2 text-primary">
               <Plus className="h-4 w-4" />
               <span>Add New Category</span>
@@ -92,6 +95,7 @@ export const CategorySelect = ({ value, onValueChange, placeholder = "Select a c
                 {CATEGORY_ICONS.map(icon => (
                   <Button
                     key={icon}
+                    type="button"
                     variant={formData.icon === icon ? "default" : "outline"}
                     size="sm"
                     onClick={() => setFormData({ ...formData, icon })}
@@ -108,6 +112,7 @@ export const CategorySelect = ({ value, onValueChange, placeholder = "Select a c
                 {CATEGORY_COLORS.map(color => (
                   <Button
                     key={color}
+                    type="button"
                     variant={formData.color === color ? "default" : "outline"}
                     size="sm"
                     onClick={() => setFormData({ ...formData, color })}
@@ -121,6 +126,7 @@ export const CategorySelect = ({ value, onValueChange, placeholder = "Select a c
             </div>
 
             <Button 
+              type="button"
               onClick={handleCreateCategory} 
               className="w-full"
               disabled={!formData.name.trim() || createCategory.isPending}
