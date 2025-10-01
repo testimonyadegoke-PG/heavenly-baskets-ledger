@@ -533,6 +533,10 @@ export type Database = {
           updated_at: string
         }
       }
+      mask_email: {
+        Args: { email: string; family_id: string; user_id: string }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
