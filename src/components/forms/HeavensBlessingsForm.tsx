@@ -14,10 +14,21 @@ import { useFamilyContext } from '@/contexts/FamilyContext';
 import { Loader2 } from 'lucide-react';
 
 const heavensBlessingsSchema = z.object({
-  amount: z.number().positive('Amount must be positive'),
-  source: z.string().min(1, 'Source is required').max(100, 'Source must be less than 100 characters'),
-  date: z.string().min(1, 'Date is required'),
-  notes: z.string().max(500, 'Notes must be less than 500 characters').optional(),
+  amount: z.number()
+    .positive('Amount must be positive')
+    .max(1000000000, 'Amount is too large')
+    .finite('Amount must be a valid number'),
+  source: z.string()
+    .min(1, 'Source is required')
+    .max(100, 'Source must be less than 100 characters')
+    .trim()
+    .refine((val) => val.length > 0, 'Source cannot be empty'),
+  date: z.string().min(1, 'Date is required').refine((val) => !isNaN(Date.parse(val)), 'Invalid date'),
+  notes: z.string()
+    .max(500, 'Notes must be less than 500 characters')
+    .trim()
+    .optional()
+    .transform((val) => val || undefined),
 });
 
 type HeavensBlessingsFormData = z.infer<typeof heavensBlessingsSchema>;

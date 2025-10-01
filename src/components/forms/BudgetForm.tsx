@@ -17,9 +17,12 @@ import { Loader2, AlertTriangle } from 'lucide-react';
 
 const budgetSchema = z.object({
   category_id: z.string().min(1, 'Category is required'),
-  budgeted_amount: z.number().positive('Budget amount must be positive'),
-  month: z.number().min(1).max(12),
-  year: z.number().min(2020).max(2030),
+  budgeted_amount: z.number()
+    .positive('Budget amount must be positive')
+    .max(1000000000, 'Budget amount is too large')
+    .finite('Budget amount must be a valid number'),
+  month: z.number().int().min(1).max(12),
+  year: z.number().int().min(2020).max(2050),
 });
 
 type BudgetFormData = z.infer<typeof budgetSchema>;

@@ -14,10 +14,18 @@ import { Loader2 } from 'lucide-react';
 
 const expenseSchema = z.object({
   category_id: z.string().min(1, 'Category is required'),
-  amount: z.number().positive('Amount must be positive'),
-  description: z.string().min(1, 'Description is required').max(200, 'Description must be less than 200 characters'),
-  date: z.string().min(1, 'Date is required'),
-  notes: z.string().max(500, 'Notes must be less than 500 characters').optional(),
+  amount: z.number().positive('Amount must be positive').max(1000000000, 'Amount is too large'),
+  description: z.string()
+    .min(1, 'Description is required')
+    .max(200, 'Description must be less than 200 characters')
+    .trim()
+    .refine((val) => val.length > 0, 'Description cannot be empty'),
+  date: z.string().min(1, 'Date is required').refine((val) => !isNaN(Date.parse(val)), 'Invalid date'),
+  notes: z.string()
+    .max(500, 'Notes must be less than 500 characters')
+    .trim()
+    .optional()
+    .transform((val) => val || undefined),
 });
 
 type ExpenseFormData = z.infer<typeof expenseSchema>;
