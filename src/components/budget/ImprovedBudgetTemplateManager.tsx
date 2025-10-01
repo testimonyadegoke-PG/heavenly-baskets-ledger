@@ -14,6 +14,7 @@ import { useCategories } from '@/hooks/useCategories';
 import { useFamilyContext } from '@/contexts/FamilyContext';
 import { Plus, Percent, Target, Trash2, Home, Info, Copy, BookOpen } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { BudgetTemplateDetail } from './BudgetTemplateDetail';
 
 export const ImprovedBudgetTemplateManager = () => {
   const navigate = useNavigate();
@@ -296,27 +297,40 @@ export const ImprovedBudgetTemplateManager = () => {
 
 const TemplateCard = ({ template }: { template: any }) => {
   const { data: items = [] } = useBudgetTemplateItems(template.id);
+  const [detailOpen, setDetailOpen] = useState(false);
   
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between">
-          <span>{template.name}</span>
-          <Badge variant="outline">{template.template_type}</Badge>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        {items.map((item: any) => (
-          <div key={item.id} className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span>{item.categories.icon}</span>
-              <span className="text-sm">{item.categories.name}</span>
+    <>
+      <Card className="cursor-pointer hover-scale" onClick={() => setDetailOpen(true)}>
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <span>{template.name}</span>
+            <Badge variant="outline">{template.template_type}</Badge>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {items.slice(0, 3).map((item: any) => (
+            <div key={item.id} className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span>{item.categories.icon}</span>
+                <span className="text-sm">{item.categories.name}</span>
+              </div>
+              <Badge variant="secondary">{item.percentage}%</Badge>
             </div>
-            <Badge variant="secondary">{item.percentage}%</Badge>
-          </div>
-        ))}
-      </CardContent>
-    </Card>
+          ))}
+          {items.length > 3 && (
+            <div className="text-sm text-muted-foreground text-center pt-2 border-t">
+              +{items.length - 3} more categories
+            </div>
+          )}
+        </CardContent>
+      </Card>
+      <BudgetTemplateDetail 
+        template={template} 
+        open={detailOpen} 
+        onOpenChange={setDetailOpen} 
+      />
+    </>
   );
 };
 

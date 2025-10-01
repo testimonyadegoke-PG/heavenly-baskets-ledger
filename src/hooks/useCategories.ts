@@ -35,9 +35,11 @@ export const useCategories = (familyId?: string | null, contextType?: 'individua
       let query = supabase.from('categories').select('*');
       
       if (contextType === 'family' && familyId) {
-        query = query.or(`and(category_type.eq.family,family_id.eq.${familyId}),and(category_type.eq.user,user_id.eq.${user.id})`);
+        // Include: family categories, user categories, AND default categories
+        query = query.or(`and(category_type.eq.family,family_id.eq.${familyId}),and(category_type.eq.user,user_id.eq.${user.id}),is_default.eq.true`);
       } else {
-        query = query.eq('category_type', 'user').eq('user_id', user.id);
+        // Include: user categories AND default categories
+        query = query.or(`and(category_type.eq.user,user_id.eq.${user.id}),is_default.eq.true`);
       }
       
       const { data, error } = await query.order('name', { ascending: true });

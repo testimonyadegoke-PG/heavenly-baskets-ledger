@@ -211,3 +211,126 @@ export const useApplyBudgetTemplate = () => {
     },
   });
 };
+
+export const useUpdateBudgetTemplate = () => {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async ({ id, name }: { id: string; name: string }) => {
+      const { data, error } = await supabase
+        .from('budget_templates')
+        .update({ name })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['budget-templates'] });
+      toast({
+        title: "Success",
+        description: "Budget template updated successfully!",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: `Failed to update budget template: ${error.message}`,
+        variant: "destructive",
+      });
+    },
+  });
+};
+
+export const useUpdateBudgetTemplateItems = () => {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async ({ 
+      templateId, 
+      items 
+    }: { 
+      templateId: string; 
+      items: Array<{ id: string; category_id: string; percentage: number }> 
+    }) => {
+      // Update each item
+      const updates = items.map(item => 
+        supabase
+          .from('budget_template_items')
+          .update({ 
+            category_id: item.category_id, 
+            percentage: item.percentage 
+          })
+          .eq('id', item.id)
+      );
+
+      const results = await Promise.all(updates);
+      
+      const errors = results.filter(r => r.error);
+      if (errors.length > 0) {
+        throw errors[0].error;
+      }
+
+      return results;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['budget-template-items'] });
+      queryClient.invalidateQueries({ queryKey: ['budget-templates'] });
+      toast({
+        title: "Success",
+        description: "Template items updated successfully!",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: `Failed to update template items: ${error.message}`,
+        variant: "destructive",
+      });
+    },
+  });
+};
+
+export const useDeleteBudgetTemplate = () => {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async (templateId: string) => {
+      // Delete template items first
+      const { error: itemsError } = await supabase
+        .from('budget_template_items')
+        .delete()
+        .eq('template_id', templateId);
+
+      if (itemsError) throw itemsError;
+
+      // Delete template
+      const { error: templateError } = await supabase
+        .from('budget_templates')
+        .delete()
+        .eq('id', templateId);
+
+      if (templateError) throw templateError;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['budget-templates'] });
+      queryClient.invalidateQueries({ queryKey: ['budget-template-items'] });
+      toast({
+        title: "Success",
+        description: "Budget template deleted successfully!",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: `Failed to delete budget template: ${error.message}`,
+        variant: "destructive",
+      });
+    },
+  });
+};
