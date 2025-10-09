@@ -85,16 +85,16 @@ export function NotificationPanel({ onClose }: NotificationPanelProps) {
       <div className="space-y-3 pr-4">
         {notifications.map((notification) => {
           const Icon = notificationIcons[notification.type] || Bell;
-          const actionData = notification.action_data as any;
+          const actionData = notification.metadata as any;
 
           return (
             <Card 
               key={notification.id} 
-              className={`p-4 ${!notification.is_read ? 'bg-accent/50 border-primary/20' : ''}`}
+              className={`p-4 ${!notification.read ? 'bg-accent/50 border-primary/20' : ''}`}
             >
               <div className="flex gap-3">
                 <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
-                  !notification.is_read ? 'bg-primary/10' : 'bg-muted'
+                  !notification.read ? 'bg-primary/10' : 'bg-muted'
                 }`}>
                   <Icon className="h-5 w-5" />
                 </div>
@@ -105,7 +105,7 @@ export function NotificationPanel({ onClose }: NotificationPanelProps) {
                       <h4 className="font-semibold text-sm">{notification.title}</h4>
                       <p className="text-sm text-muted-foreground mt-1">{notification.message}</p>
                     </div>
-                    {!notification.is_read && (
+                    {!notification.read && (
                       <Badge variant="default" className="shrink-0 h-2 w-2 p-0 rounded-full" />
                     )}
                   </div>
@@ -118,7 +118,7 @@ export function NotificationPanel({ onClose }: NotificationPanelProps) {
 
                   {/* Action Buttons */}
                   <div className="flex items-center gap-2 pt-2">
-                    {notification.type === 'family_invitation' && notification.action_type === 'accept' && actionData?.invitation_id && (
+                    {notification.type === 'family_invitation' && notification.action_url && actionData?.invitation_id && (
                       <>
                         <Button
                           size="sm"
@@ -141,7 +141,7 @@ export function NotificationPanel({ onClose }: NotificationPanelProps) {
                       </>
                     )}
 
-                    {!notification.is_read && (
+                    {!notification.read && (
                       <Button
                         size="sm"
                         variant="ghost"

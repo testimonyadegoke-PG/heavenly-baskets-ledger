@@ -10,7 +10,7 @@ export function NotificationBell() {
   const [open, setOpen] = useState(false);
   const { data: notifications = [], isLoading } = useNotifications();
 
-  const unreadCount = notifications.filter(n => !n.is_read).length;
+  const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>

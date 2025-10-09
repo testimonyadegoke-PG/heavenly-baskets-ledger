@@ -4,20 +4,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 
-interface Notification {
-  id: string;
-  user_id: string;
-  family_id: string | null;
-  type: 'family_invitation' | 'budget_alert' | 'expense_alert' | 'recommendation' | 'system';
-  title: string;
-  message: string;
-  action_type: 'view' | 'accept' | 'decline' | 'dismiss' | 'navigate' | null;
-  action_data: Record<string, any> | null;
-  is_read: boolean;
-  created_at: string;
-  read_at: string | null;
-  expires_at: string | null;
-}
+import type { Database } from '@/integrations/supabase/types';
+
+type Notification = Database['public']['Tables']['notifications']['Row'];
 
 export const useNotifications = () => {
   const { user } = useAuth();
@@ -76,7 +65,7 @@ export const useMarkNotificationRead = () => {
     mutationFn: async (notificationId: string) => {
       const { error } = await supabase
         .from('notifications')
-        .update({ is_read: true })
+        .update({ read: true })
         .eq('id', notificationId);
 
       if (error) throw error;
@@ -97,9 +86,9 @@ export const useMarkAllNotificationsRead = () => {
 
       const { error } = await supabase
         .from('notifications')
-        .update({ is_read: true })
+        .update({ read: true })
         .eq('user_id', user.id)
-        .eq('is_read', false);
+        .eq('read', false);
 
       if (error) throw error;
     },
@@ -132,7 +121,7 @@ export const useCreateNotification = () => {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async (notification: Omit<Notification, 'id' | 'created_at' | 'read_at' | 'is_read'>) => {
+    mutationFn: async (notification: Database['public']['Tables']['notifications']['Insert']) => {
       const { data, error } = await supabase
         .from('notifications')
         .insert(notification)

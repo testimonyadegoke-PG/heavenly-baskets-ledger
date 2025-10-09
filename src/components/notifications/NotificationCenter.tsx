@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useNotifications, useMarkNotificationAsRead } from '@/hooks/useNotifications';
+import { useNotifications, useMarkNotificationRead } from '@/hooks/useNotifications';
 import { Bell, Check, AlertTriangle, Info, CheckCircle, XCircle } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -37,14 +37,13 @@ const getNotificationVariant = (type: string) => {
 export const NotificationCenter = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { data: allNotifications = [] } = useNotifications();
-  const { data: unreadNotifications = [] } = useNotifications(true);
-  const markAsRead = useMarkNotificationAsRead();
+  const markAsRead = useMarkNotificationRead();
 
   const handleMarkAsRead = async (notificationId: string) => {
     await markAsRead.mutateAsync(notificationId);
   };
 
-  const unreadCount = unreadNotifications.length;
+  const unreadCount = allNotifications.filter(n => !n.read).length;
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
