@@ -22,7 +22,6 @@ import { MonthlyData, BudgetCategory } from '@/types/expenses';
 import { Plus } from 'lucide-react';
 
 const Dashboard = () => {
-  const { signOut } = useAuth();
   const { selectedFamilyId, contextType } = useFamilyContext();
   const checkBudgetAlerts = useCheckBudgetAlerts();
   const checkSpendingAlerts = useCheckSpendingAlerts();
@@ -96,35 +95,15 @@ const Dashboard = () => {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-background">
-        <div className="border-b bg-card">
-          <div className="container mx-auto px-4 py-6">
-            <div className="flex justify-between items-center mb-4">
-              <div>
-                <h1 className="text-3xl font-bold text-foreground">Family Finance Dashboard</h1>
-                <p className="text-muted-foreground mt-1">Managing Heaven's Blessings with Wisdom</p>
-              </div>
-              <Button variant="outline" onClick={signOut}>
-                <LogOut className="h-4 w-4 mr-2" />
-                Sign Out
-              </Button>
-            </div>
-            
+      <AppShell>
+        <div className="container mx-auto px-4 py-6">
+          <div className="mb-6">
             <DateFilter 
               currentRange={dateRange}
               onDateChange={setDateRange}
             />
           </div>
-        </div>
 
-        <div className="container mx-auto px-4 py-6">
-          <FamilySelector />
-          <div className="mt-6">
-            <MainNavigation />
-          </div>
-        </div>
-
-        <div className="container mx-auto px-4 py-6">
           <div className="mb-8">
             <MetricsCards data={currentData} />
           </div>
@@ -193,7 +172,6 @@ const Dashboard = () => {
             <p className="italic">"For where your treasure is, there your heart will be also." - Matthew 6:21</p>
           </div>
 
-          {/* Financial Intelligence Panel */}
           <div className="mt-8">
             <InsightsPanel />
           </div>
