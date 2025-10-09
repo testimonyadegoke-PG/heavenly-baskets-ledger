@@ -22,7 +22,7 @@ const MainNavigation = () => {
       id: 'dashboard',
       label: 'Dashboard',
       icon: <Home className="h-5 w-5" />,
-      path: '/',
+      path: '/app',
       description: 'Overview and insights'
     },
     {
@@ -70,8 +70,7 @@ const MainNavigation = () => {
   ];
 
   const isActive = (path: string) => {
-    if (path === '/') return location.pathname === '/';
-    return location.pathname.startsWith(path);
+    return location.pathname === path || location.pathname.startsWith(`${path}/`);
   };
 
   return (
@@ -83,26 +82,26 @@ const MainNavigation = () => {
         </div>
       </div>
       
-        <Card className="hidden md:block">
-          <CardContent className="p-4">
-            <div className="grid grid-cols-2 md:grid-cols-7 gap-3">
-              {navigationItems.map((item) => (
-                <Button
-                  key={item.id}
-                  variant={isActive(item.path) ? "default" : "outline"}
-                  className={`h-auto p-3 flex-col gap-2 ${isActive(item.path) ? 'shadow-md' : 'hover:shadow-sm'}`}
-                  onClick={() => navigate(item.path)}
-                >
-                  {item.icon}
-                  <div className="text-center w-full">
-                    <div className="font-medium text-xs truncate">{item.label}</div>
-                    <div className="text-xs opacity-70 hidden lg:block truncate">{item.description}</div>
-                  </div>
-                </Button>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+      <Card className="hidden md:block">
+        <CardContent className="p-4">
+          <div className="grid grid-cols-2 md:grid-cols-7 gap-3">
+            {navigationItems.map((item) => (
+              <Button
+                key={item.id}
+                variant={isActive(item.path) ? "default" : "outline"}
+                className={`h-auto p-3 flex-col gap-2 ${isActive(item.path) ? 'shadow-md' : 'hover:shadow-sm'}`}
+                onClick={() => navigate(item.path)}
+              >
+                {item.icon}
+                <div className="text-center w-full">
+                  <div className="font-medium text-xs truncate">{item.label}</div>
+                  <div className="text-xs opacity-70 hidden lg:block truncate">{item.description}</div>
+                </div>
+              </Button>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

@@ -38,13 +38,12 @@ const BudgetsList = () => {
 
   const totalBudgeted = budgets.reduce((sum, budget) => sum + budget.budgeted_amount, 0);
   const totalSpent = expenses.reduce((sum, expense) => sum + expense.amount, 0);
-
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
-            <Button variant="outline" size="sm" onClick={() => navigate('/')}>
+            <Button variant="outline" size="sm" onClick={() => navigate('/app')}> 
               <ArrowLeft className="h-4 w-4 mr-2" />
               Dashboard
             </Button>

@@ -104,12 +104,13 @@ export const BudgetTemplateManager = () => {
           <Button 
             variant="outline" 
             size="sm" 
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/app')}
             className="flex items-center gap-2"
           >
             <Home className="h-4 w-4" />
             Dashboard
           </Button>
+          
           <h2 className="text-2xl font-bold">Budget Templates</h2>
         </div>
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>

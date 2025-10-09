@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/hooks/useAuth';
 import { useHeavensBlessings } from '@/hooks/useHeavensBlessings';
 import { useBudgets } from '@/hooks/useBudgets';
 import { useExpenses } from '@/hooks/useExpenses';
 import { useFamilyContext } from '@/contexts/FamilyContext';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
+import { AppShell } from '@/components/layout/AppShell';
 import DateFilter, { DateRange } from '@/components/navigation/DateFilter';
-import MainNavigation from '@/components/navigation/MainNavigation';
 import MetricsCards from '@/components/dashboard/MetricsCards';
 import CategoryCard from '@/components/dashboard/CategoryCard';
 import ExpenseCharts from '@/components/dashboard/ExpenseCharts';
@@ -14,15 +13,13 @@ import HeavensBlessingsForm from '@/components/forms/HeavensBlessingsForm';
 import BudgetForm from '@/components/forms/BudgetForm';
 import ExpenseForm from '@/components/forms/ExpenseForm';
 import RecentExpenses from '@/components/expenses/RecentExpenses';
-import { FamilySelector } from '@/components/family/FamilySelector';
 import { InsightsPanel } from '@/components/insights/InsightsPanel';
 import { useCheckBudgetAlerts, useCheckSpendingAlerts } from '@/hooks/useNotifications';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MonthlyData, BudgetCategory } from '@/types/expenses';
-import { PREDEFINED_CATEGORIES } from '@/types/expenses';
-import { LogOut, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 const Dashboard = () => {
   const { signOut } = useAuth();
@@ -192,7 +189,7 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className="text-center text-sm text-muted-foreground border-t pt-6">
+          <div className="text-center text-sm text-muted-foreground border-t pt-6 mt-8">
             <p className="italic">"For where your treasure is, there your heart will be also." - Matthew 6:21</p>
           </div>
 
@@ -201,7 +198,7 @@ const Dashboard = () => {
             <InsightsPanel />
           </div>
         </div>
-      </div>
+      </AppShell>
     </ProtectedRoute>
   );
 };

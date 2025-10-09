@@ -10,7 +10,7 @@ const navigationItems = [
     id: 'dashboard',
     label: 'Dashboard',
     icon: Home,
-    path: '/',
+    path: '/app',
     description: 'Overview and insights'
   },
   {
@@ -56,15 +56,13 @@ export const MobileNavigation = () => {
   const location = useLocation();
 
   const isActive = (path: string) => {
-    if (path === '/') return location.pathname === '/';
-    return location.pathname.startsWith(path);
+    return location.pathname === path || location.pathname.startsWith(`${path}/`);
   };
 
   const handleNavigate = (path: string) => {
     navigate(path);
     setIsOpen(false);
   };
-
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
@@ -89,11 +87,12 @@ export const MobileNavigation = () => {
                           asChild
                           isActive={isActive(item.path)}
                           onClick={() => handleNavigate(item.path)}
+                          className="hover:bg-accent"
                         >
-                          <button className="flex items-center gap-3 w-full">
-                            <item.icon className="h-4 w-4" />
-                            <div className="text-left">
-                              <div className="font-medium">{item.label}</div>
+                          <button className="flex items-center gap-3 w-full p-3 text-foreground">
+                            <item.icon className="h-5 w-5 shrink-0" />
+                            <div className="text-left flex-1">
+                              <div className="font-medium text-sm">{item.label}</div>
                               <div className="text-xs text-muted-foreground">{item.description}</div>
                             </div>
                           </button>

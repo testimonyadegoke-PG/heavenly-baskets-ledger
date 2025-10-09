@@ -26,25 +26,37 @@ export interface CreateCategory {
 
 export const useCategories = (familyId?: string | null, contextType?: 'individual' | 'family') => {
   const { user } = useAuth();
-  
+
   return useQuery({
-    queryKey: ['categories', familyId, contextType],
+    queryKey: ['categories', familyId, contextType, user?.id],
     queryFn: async () => {
-      if (!user) return [];
-      
+      if (!user) return [] as Category[];
+
+      // Fetch categories with proper OR conditions
+      // Include: default categories OR user's own categories OR family categories
       let query = supabase.from('categories').select('*');
-      
+
+      // Build OR filter string
+      const orConditions: string[] = [
+        `user_id.eq.${user.id}`,           // User's own categories
+        'is_default.eq.true'                 // Default/system categories
+      ];
+
+      // Add family categories if in family context
       if (contextType === 'family' && familyId) {
-        // Include: family categories, user categories, AND default categories
-        query = query.or(`and(category_type.eq.family,family_id.eq.${familyId}),and(category_type.eq.user,user_id.eq.${user.id}),is_default.eq.true`);
-      } else {
-        // Include: user categories AND default categories
-        query = query.or(`and(category_type.eq.user,user_id.eq.${user.id}),is_default.eq.true`);
+        orConditions.push(`family_id.eq.${familyId}`);
+      }
+
+      query = query.or(orConditions.join(','));
+
+      const { data, error } = await query.order('name', { ascending: true });
+      
+      if (error) {
+        console.error('Category fetch error:', error);
+        throw error;
       }
       
-      const { data, error } = await query.order('name', { ascending: true });
-
-      if (error) throw error;
+      console.log('Fetched categories:', data?.length || 0, data);
       return data as Category[];
     },
     enabled: !!user,

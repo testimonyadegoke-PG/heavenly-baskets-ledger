@@ -82,7 +82,6 @@ export const useCopySampleTemplate = () => {
         .from('sample_budget_template_items')
         .select('*')
         .eq('template_id', templateId);
-
       if (itemsError) throw itemsError;
 
       // Create a new user/family template
@@ -90,6 +89,7 @@ export const useCopySampleTemplate = () => {
         .from('budget_templates')
         .insert({
           name: sampleTemplate.name,
+          description: sampleTemplate.description,
           template_type: contextType === 'family' && familyId ? 'family' : 'user',
           user_id: contextType === 'individual' || !familyId ? user.id : null,
           family_id: contextType === 'family' ? familyId : null,
@@ -99,8 +99,43 @@ export const useCopySampleTemplate = () => {
 
       if (createError) throw createError;
 
-      // Note: We won't copy the items directly since they reference category names
-      // The user will need to map them to their own categories when applying
+      // Copy the template items by matching category names
+      if (sampleItems && sampleItems.length > 0) {
+        // Get all user's categories to match by name
+        const { data: userCategories, error: categoriesError } = await supabase
+          .from('categories')
+          .select('*')
+          .or(`user_id.eq.${user.id},is_default.eq.true${familyId ? `,family_id.eq.${familyId}` : ''}`);
+
+        if (categoriesError) throw categoriesError;
+
+        // Map sample items to user's actual categories
+        const itemsToInsert = sampleItems
+          .map((sampleItem: any) => {
+            // Find matching category by name
+            const matchingCategory = userCategories?.find(
+              (cat: any) => cat.name.toLowerCase() === sampleItem.category_name.toLowerCase()
+            );
+
+            if (!matchingCategory) return null;
+
+            return {
+              template_id: newTemplate.id,
+              category_id: matchingCategory.id,
+              percentage: sampleItem.percentage,
+            };
+          })
+          .filter((item): item is NonNullable<typeof item> => item !== null);
+
+        // Insert the mapped items
+        if (itemsToInsert.length > 0) {
+          const { error: itemsInsertError } = await supabase
+            .from('budget_template_items')
+            .insert(itemsToInsert);
+
+          if (itemsInsertError) throw itemsInsertError;
+        }
+      }
 
       return newTemplate;
     },

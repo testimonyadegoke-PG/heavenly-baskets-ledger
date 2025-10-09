@@ -11,7 +11,7 @@ import { UserInvitations } from './UserInvitations';
 export const FamilySelector = () => {
   const { 
     selectedFamilyId, 
-    setSelectedFamilyId, 
+    setSelectedFamilyId,
     contextType, 
     setContextType, 
     availableFamilies 
@@ -54,41 +54,41 @@ export const FamilySelector = () => {
                 ))}
             </SelectContent>
           </Select>
-
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button variant="outline" size="sm">
-                <Plus className="h-4 w-4" />
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Family Management</DialogTitle>
-              </DialogHeader>
-              
-              <Tabs defaultValue="create" className="w-full">
-                <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="create">Create Family</TabsTrigger>
-                  <TabsTrigger value="invite">Invite Member</TabsTrigger>
-                  <TabsTrigger value="invitations">My Invitations</TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value="create">
-                  <CreateFamilyForm />
-                </TabsContent>
-                
-                <TabsContent value="invite">
-                  <FamilyInvitationForm familyId={selectedFamilyId} />
-                </TabsContent>
-                
-                <TabsContent value="invitations">
-                  <UserInvitations />
-                </TabsContent>
-              </Tabs>
-            </DialogContent>
-          </Dialog>
         </div>
       )}
+
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button variant="outline" size="sm">
+            <Plus className="h-4 w-4" />
+          </Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Family Management</DialogTitle>
+          </DialogHeader>
+          
+          <Tabs defaultValue="create" className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="create">Create Family</TabsTrigger>
+              <TabsTrigger value="invite">Invite Member</TabsTrigger>
+              <TabsTrigger value="invitations">My Invitations</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="create">
+              <CreateFamilyForm />
+            </TabsContent>
+            
+            <TabsContent value="invite">
+              <FamilyInvitationForm familyId={selectedFamilyId} />
+            </TabsContent>
+            
+            <TabsContent value="invitations">
+              <UserInvitations />
+            </TabsContent>
+          </Tabs>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

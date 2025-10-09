@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -21,16 +22,18 @@ export const ImprovedBudgetTemplateManager = () => {
   const { selectedFamilyId, contextType } = useFamilyContext();
   const { data: templates = [], isLoading } = useBudgetTemplates(selectedFamilyId, contextType);
   const { data: sampleTemplates = [] } = useSampleBudgetTemplates();
-  const { data: categories = [] } = useCategories(selectedFamilyId, contextType);
+  const { data: categories = [], isLoading: categoriesLoading, error: categoriesError } = useCategories(selectedFamilyId, contextType);
   const createTemplate = useCreateBudgetTemplate();
   const applyTemplate = useApplyBudgetTemplate();
   const copySampleTemplate = useCopySampleTemplate();
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [templateName, setTemplateName] = useState('');
+  const [templateDescription, setTemplateDescription] = useState('');
   const [templateItems, setTemplateItems] = useState<Array<{ category_id: string; percentage: number }>>([]);
   const [selectedTemplate, setSelectedTemplate] = useState<string>('');
   const [totalIncome, setTotalIncome] = useState<number>(0);
+  const [newCategoryId, setNewCategoryId] = useState<string>('');
 
   // Pre-fill all categories when dialog opens
   useEffect(() => {
@@ -42,9 +45,9 @@ export const ImprovedBudgetTemplateManager = () => {
       setTemplateItems(preFilledItems);
     }
   }, [isCreateOpen, categories, templateItems.length]);
-
   const resetForm = () => {
     setTemplateName('');
+    setTemplateDescription('');
     setTemplateItems([]);
   };
 
@@ -58,10 +61,29 @@ export const ImprovedBudgetTemplateManager = () => {
     return templateItems.reduce((sum, item) => sum + (item.percentage || 0), 0);
   };
 
+  const removeTemplateItem = (index: number) => {
+    const newItems = [...templateItems];
+    newItems.splice(index, 1);
+    setTemplateItems(newItems);
+  };
+
+  const availableCategories = categories.filter(
+    (cat) => !templateItems.some((item) => item.category_id === cat.id)
+  );
+
+  const addTemplateItem = () => {
+    const categoryToAdd = newCategoryId || availableCategories[0]?.id;
+    if (categoryToAdd) {
+      setTemplateItems([...templateItems, { category_id: categoryToAdd, percentage: 0 }]);
+      setNewCategoryId('');
+    }
+  };
+
   const handleCreateTemplate = () => {
     if (templateName.trim() && templateItems.length > 0) {
       createTemplate.mutate({
         name: templateName,
+        description: templateDescription,
         template_type: contextType === 'family' && selectedFamilyId ? 'family' : 'user',
         family_id: contextType === 'family' ? selectedFamilyId || undefined : undefined,
         items: templateItems.filter(item => item.category_id && item.percentage > 0),
@@ -96,10 +118,6 @@ export const ImprovedBudgetTemplateManager = () => {
     });
   };
 
-  if (isLoading) {
-    return <div>Loading templates...</div>;
-  }
-
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -107,7 +125,7 @@ export const ImprovedBudgetTemplateManager = () => {
           <Button 
             variant="outline" 
             size="sm" 
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/app')}
             className="flex items-center gap-2"
           >
             <Home className="h-4 w-4" />
@@ -127,22 +145,41 @@ export const ImprovedBudgetTemplateManager = () => {
               <DialogTitle>Create Budget Template</DialogTitle>
             </DialogHeader>
             <div className="space-y-6">
-              <div>
-                <Label htmlFor="template-name">Template Name</Label>
-                <Input
-                  id="template-name"
-                  value={templateName}
-                  onChange={(e) => setTemplateName(e.target.value)}
-                  placeholder="e.g., My Custom Budget"
-                />
-              </div>
+              {/* Template Details Card */}
+              <Card className="bg-muted/30">
+                <CardHeader>
+                  <CardTitle className="text-base">Template Details</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label htmlFor="template-name">Template Name</Label>
+                    <Input
+                      id="template-name"
+                      value={templateName}
+                      onChange={(e) => setTemplateName(e.target.value)}
+                      placeholder="e.g., My Custom Budget"
+                      className="mt-1.5"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="template-description">Description (Optional)</Label>
+                    <Textarea
+                      id="template-description"
+                      value={templateDescription}
+                      onChange={(e) => setTemplateDescription(e.target.value)}
+                      placeholder="A brief description of this template's purpose"
+                      className="mt-1.5"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
 
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
                   <h3 className="text-lg font-medium">Category Allocations</h3>
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-muted-foreground">Total:</span>
-                    <Badge variant={getTotalPercentage() === 100 ? "default" : "destructive"}>
+                    <Badge variant={getTotalPercentage() === 100 ? 'default' : 'destructive'}>
                       {getTotalPercentage()}%
                     </Badge>
                   </div>
@@ -156,14 +193,39 @@ export const ImprovedBudgetTemplateManager = () => {
                 </Alert>
 
                 <div className="space-y-3 max-h-96 overflow-y-auto border rounded-lg p-4">
+                  {categoriesLoading && (
+                    <div className="text-center py-4 text-muted-foreground">
+                      Loading categories...
+                    </div>
+                  )}
+                  {categoriesError && (
+                    <Alert variant="destructive">
+                      <AlertDescription>
+                        Error loading categories: {categoriesError.message}
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                  {!categoriesLoading && categories.length === 0 && (
+                    <Alert>
+                      <Info className="h-4 w-4" />
+                      <AlertDescription>
+                        No categories available. Please create some categories first in Settings.
+                      </AlertDescription>
+                    </Alert>
+                  )}
                   {templateItems.map((item, index) => {
                     const category = categories.find(cat => cat.id === item.category_id);
                     return (
-                      <div key={index} className="grid grid-cols-12 gap-2 items-center p-2 rounded border">
-                        <div className="col-span-7 flex items-center gap-2">
+                      <div 
+                        key={index} 
+                        className="grid grid-cols-12 gap-3 items-center p-3 rounded-lg border bg-card hover:bg-accent/50 hover:shadow-sm transition-all duration-200 focus-within:ring-2 focus-within:ring-primary/20"
+                      >
+                        <div className="col-span-6 flex items-center gap-3">
                           {category && (
                             <>
-                              <span className="text-xl">{category.icon}</span>
+                              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-muted">
+                                <span className="text-2xl">{category.icon}</span>
+                              </div>
                               <span className="text-sm font-medium">{category.name}</span>
                             </>
                           )}
@@ -178,24 +240,122 @@ export const ImprovedBudgetTemplateManager = () => {
                               value={item.percentage || ''}
                               onChange={(e) => updateTemplateItem(index, 'percentage', parseFloat(e.target.value) || 0)}
                               placeholder="0"
+                              className="pr-8 w-full"
                             />
-                            <Percent className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                            <Percent className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
                           </div>
+                        </div>
+                        <div className="col-span-1 flex justify-end">
+                          <Button 
+                            type="button" 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => removeTemplateItem(index)}
+                            className="hover:bg-destructive/10 hover:text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </div>
                       </div>
                     );
                   })}
                 </div>
 
-                <Progress value={getTotalPercentage()} className="w-full" />
+                {/* Progress Visualization */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">Budget Allocation Progress</span>
+                    <span className="text-sm text-muted-foreground">
+                      {getTotalPercentage() === 100 
+                        ? '✅ Perfect! 100% allocated' 
+                        : getTotalPercentage() < 100
+                        ? `${100 - getTotalPercentage()}% remaining`
+                        : `${getTotalPercentage() - 100}% over budget`
+                      }
+                    </span>
+                  </div>
+                  <Progress 
+                    value={getTotalPercentage()} 
+                    className={`w-full h-3 ${getTotalPercentage() === 100 ? 'bg-green-100' : getTotalPercentage() > 100 ? 'bg-red-100' : ''}`}
+                  />
+                  {getTotalPercentage() !== 100 && (
+                    <Alert variant={getTotalPercentage() > 100 ? 'destructive' : 'default'}>
+                      <Info className="h-4 w-4" />
+                      <AlertDescription>
+                        {getTotalPercentage() > 100 
+                          ? `Total exceeds 100% by ${getTotalPercentage() - 100}%. Please adjust percentages.`
+                          : `Total is ${getTotalPercentage()}%. Add ${100 - getTotalPercentage()}% more to reach 100%.`
+                        }
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                </div>
 
-                <Button 
-                  onClick={handleCreateTemplate} 
-                  className="w-full"
-                  disabled={!templateName.trim() || templateItems.length === 0 || getTotalPercentage() !== 100 || createTemplate.isPending}
-                >
-                  {createTemplate.isPending ? 'Creating...' : 'Create Template'}
-                </Button>
+                {/* Divider */}
+                <div className="border-t my-4"></div>
+
+                {/* Add Category Section */}
+                {availableCategories.length > 0 && (
+                  <div className="space-y-3">
+                    <Label className="text-sm font-medium">Add Another Category</Label>
+                    <div className="flex items-end gap-2">
+                      <div className="flex-1">
+                        <select
+                          id="add-category-select"
+                          className="w-full h-10 px-3 rounded-md border bg-background"
+                          value={newCategoryId}
+                          onChange={(e) => setNewCategoryId(e.target.value)}
+                        >
+                          <option value="">Select a category</option>
+                          {availableCategories.map((cat) => (
+                            <option key={cat.id} value={cat.id}>
+                              {cat.icon} {cat.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        onClick={addTemplateItem} 
+                        disabled={!newCategoryId}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                <div className="flex justify-end gap-3 pt-4">
+                  <Button 
+                    variant="outline"
+                    onClick={() => {
+                      setIsCreateOpen(false);
+                      resetForm();
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button 
+                    onClick={handleCreateTemplate} 
+                    disabled={!templateName.trim() || templateItems.length === 0 || getTotalPercentage() !== 100 || createTemplate.isPending}
+                    className="min-w-32"
+                  >
+                    {createTemplate.isPending ? (
+                      <>
+                        <span className="animate-spin mr-2">⏳</span>
+                        Creating...
+                      </>
+                    ) : (
+                      <>
+                        <Target className="h-4 w-4 mr-2" />
+                        Create Template
+                      </>
+                    )}
+                  </Button>
+                </div>
               </div>
             </div>
           </DialogContent>

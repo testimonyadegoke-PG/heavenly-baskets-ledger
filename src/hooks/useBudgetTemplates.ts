@@ -6,6 +6,7 @@ import { useToast } from '@/hooks/use-toast';
 export interface BudgetTemplate {
   id: string;
   name: string;
+  description?: string;
   user_id?: string;
   family_id?: string;
   template_type: 'user' | 'family';
@@ -19,16 +20,6 @@ export interface BudgetTemplateItem {
   category_id: string;
   percentage: number;
   created_at: string;
-}
-
-export interface CreateBudgetTemplate {
-  name: string;
-  template_type: 'user' | 'family';
-  family_id?: string;
-  items: Array<{
-    category_id: string;
-    percentage: number;
-  }>;
 }
 
 export const useBudgetTemplates = (familyId?: string | null, contextType?: 'individual' | 'family') => {
@@ -53,6 +44,92 @@ export const useBudgetTemplates = (familyId?: string | null, contextType?: 'indi
       return data as BudgetTemplate[];
     },
     enabled: !!user,
+  });
+};
+
+// Synchronize template items in one mutation: insert new, update existing, delete removed
+export const useSyncBudgetTemplateItems = () => {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async ({
+      templateId,
+      items,
+    }: {
+      templateId: string;
+      items: Array<{ id?: string; category_id: string; percentage: number }>;
+    }) => {
+      // Load current items
+      const { data: currentItems, error: loadError } = await supabase
+        .from('budget_template_items')
+        .select('id, category_id, percentage')
+        .eq('template_id', templateId);
+
+      if (loadError) throw loadError;
+
+      const currentMap = new Map((currentItems || []).map((ci) => [ci.id, ci]));
+      const incomingIds = new Set(items.filter(i => i.id).map(i => i.id as string));
+
+      const toInsert = items.filter((i) => !i.id);
+      const toUpdate = items.filter((i) => i.id);
+      const toDeleteIds = (currentItems || [])
+        .filter((ci) => !incomingIds.has(ci.id))
+        .map((ci) => ci.id);
+
+      // Perform operations
+      // Inserts
+      if (toInsert.length > 0) {
+        const { error: insertError } = await supabase
+          .from('budget_template_items')
+          .insert(
+            toInsert.map((i) => ({
+              template_id: templateId,
+              category_id: i.category_id,
+              percentage: i.percentage,
+            }))
+          );
+        if (insertError) throw insertError;
+      }
+
+      // Updates (only when values changed to reduce writes)
+      for (const i of toUpdate) {
+        const prev = i.id ? currentMap.get(i.id) : null;
+        if (!prev || prev.category_id !== i.category_id || prev.percentage !== i.percentage) {
+          const { error: updateError } = await supabase
+            .from('budget_template_items')
+            .update({ category_id: i.category_id, percentage: i.percentage })
+            .eq('id', i.id);
+          if (updateError) throw updateError;
+        }
+      }
+
+      // Deletes
+      if (toDeleteIds.length > 0) {
+        const { error: deleteError } = await supabase
+          .from('budget_template_items')
+          .delete()
+          .in('id', toDeleteIds);
+        if (deleteError) throw deleteError;
+      }
+
+      return true;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['budget-template-items'] });
+      queryClient.invalidateQueries({ queryKey: ['budget-templates'] });
+      toast({
+        title: 'Success',
+        description: 'Template items saved successfully!',
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: 'Error',
+        description: `Failed to save template items: ${error.message}`,
+        variant: 'destructive',
+      });
+    },
   });
 };
 
@@ -81,6 +158,17 @@ export const useBudgetTemplateItems = (templateId: string) => {
   });
 };
 
+export interface CreateBudgetTemplate {
+  name: string;
+  description?: string;
+  template_type: 'user' | 'family';
+  family_id?: string;
+  items: Array<{
+    category_id: string;
+    percentage: number;
+  }>;
+}
+
 export const useCreateBudgetTemplate = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -95,6 +183,7 @@ export const useCreateBudgetTemplate = () => {
         .from('budget_templates')
         .insert({
           name: templateData.name,
+          description: templateData.description,
           template_type: templateData.template_type,
           user_id: templateData.template_type === 'user' ? user.id : null,
           family_id: templateData.family_id || null,
@@ -124,15 +213,15 @@ export const useCreateBudgetTemplate = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['budget-templates'] });
       toast({
-        title: "Success",
-        description: "Budget template created successfully!",
+        title: 'Success',
+        description: 'Budget template created successfully!',
       });
     },
     onError: (error) => {
       toast({
-        title: "Error",
+        title: 'Error',
         description: `Failed to create budget template: ${error.message}`,
-        variant: "destructive",
+        variant: 'destructive',
       });
     },
   });
@@ -176,9 +265,9 @@ export const useApplyBudgetTemplate = () => {
       const budgetsToCreate = templateItems.map(item => ({
         user_id: user.id,
         category_id: item.category_id,
-        category_name: item.categories.name,
-        category_icon: item.categories.icon,
-        category_color: item.categories.color,
+        category_name: (item as any).categories.name,
+        category_icon: (item as any).categories.icon,
+        category_color: (item as any).categories.color,
         budgeted_amount: (totalIncome * item.percentage) / 100,
         month,
         year,
@@ -198,15 +287,15 @@ export const useApplyBudgetTemplate = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['budgets'] });
       toast({
-        title: "Success",
-        description: "Budget template applied successfully!",
+        title: 'Success',
+        description: 'Budget template applied successfully!',
       });
     },
     onError: (error) => {
       toast({
-        title: "Error",
+        title: 'Error',
         description: `Failed to apply budget template: ${error.message}`,
-        variant: "destructive",
+        variant: 'destructive',
       });
     },
   });
@@ -217,10 +306,10 @@ export const useUpdateBudgetTemplate = () => {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async ({ id, name }: { id: string; name: string }) => {
+    mutationFn: async ({ id, name, description }: { id: string; name: string; description?: string }) => {
       const { data, error } = await supabase
         .from('budget_templates')
-        .update({ name })
+        .update({ name, description })
         .eq('id', id)
         .select()
         .single();
@@ -231,15 +320,15 @@ export const useUpdateBudgetTemplate = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['budget-templates'] });
       toast({
-        title: "Success",
-        description: "Budget template updated successfully!",
+        title: 'Success',
+        description: 'Budget template updated successfully!',
       });
     },
     onError: (error) => {
       toast({
-        title: "Error",
+        title: 'Error',
         description: `Failed to update budget template: ${error.message}`,
-        variant: "destructive",
+        variant: 'destructive',
       });
     },
   });
@@ -255,7 +344,7 @@ export const useUpdateBudgetTemplateItems = () => {
       items 
     }: { 
       templateId: string; 
-      items: Array<{ id: string; category_id: string; percentage: number }> 
+      items: Array<{ id: string; category_id: string; percentage: number }>
     }) => {
       // Update each item
       const updates = items.map(item => 
@@ -281,15 +370,15 @@ export const useUpdateBudgetTemplateItems = () => {
       queryClient.invalidateQueries({ queryKey: ['budget-template-items'] });
       queryClient.invalidateQueries({ queryKey: ['budget-templates'] });
       toast({
-        title: "Success",
-        description: "Template items updated successfully!",
+        title: 'Success',
+        description: 'Template items updated successfully!',
       });
     },
     onError: (error) => {
       toast({
-        title: "Error",
+        title: 'Error',
         description: `Failed to update template items: ${error.message}`,
-        variant: "destructive",
+        variant: 'destructive',
       });
     },
   });

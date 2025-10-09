@@ -18,6 +18,8 @@ import ExpenseDetail from "./pages/ExpenseDetail";
 import Categories from "@/pages/Categories";
 import BudgetTemplates from "@/pages/BudgetTemplates";
 import Insights from "@/pages/Insights";
+import Landing from "@/pages/Landing";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -26,21 +28,22 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <AuthProvider>
           <FamilyProvider>
             <Routes>
+            <Route path="/" element={<Landing />} />
             <Route path="/auth" element={<Auth />} />
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/budgets" element={<BudgetsList />} />
-            <Route path="/budgets/:id" element={<BudgetDetail />} />
-            <Route path="/income" element={<IncomeList />} />
-            <Route path="/income/:id" element={<IncomeDetail />} />
-            <Route path="/expenses" element={<ExpensesList />} />
-            <Route path="/expenses/:id" element={<ExpenseDetail />} />
-            <Route path="/categories" element={<Categories />} />
-            <Route path="/budget-templates" element={<BudgetTemplates />} />
-            <Route path="/insights" element={<Insights />} />
+            <Route path="/app" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/budgets" element={<ProtectedRoute><BudgetsList /></ProtectedRoute>} />
+            <Route path="/budgets/:id" element={<ProtectedRoute><BudgetDetail /></ProtectedRoute>} />
+            <Route path="/income" element={<ProtectedRoute><IncomeList /></ProtectedRoute>} />
+            <Route path="/income/:id" element={<ProtectedRoute><IncomeDetail /></ProtectedRoute>} />
+            <Route path="/expenses" element={<ProtectedRoute><ExpensesList /></ProtectedRoute>} />
+            <Route path="/expenses/:id" element={<ProtectedRoute><ExpenseDetail /></ProtectedRoute>} />
+            <Route path="/categories" element={<ProtectedRoute><Categories /></ProtectedRoute>} />
+            <Route path="/budget-templates" element={<ProtectedRoute><BudgetTemplates /></ProtectedRoute>} />
+            <Route path="/insights" element={<ProtectedRoute><Insights /></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
             </Routes>

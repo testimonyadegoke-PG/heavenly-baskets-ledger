@@ -39,7 +39,7 @@ const ExpensesList = () => {
       <div className="container mx-auto px-4 py-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
-            <Button variant="outline" size="sm" onClick={() => navigate('/')}>
+            <Button variant="outline" size="sm" onClick={() => navigate('/app')}>
               <ArrowLeft className="h-4 w-4 mr-2" />
               Dashboard
             </Button>

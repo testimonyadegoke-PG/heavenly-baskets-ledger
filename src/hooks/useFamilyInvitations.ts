@@ -134,17 +134,18 @@ export const useAcceptFamilyInvitation = () => {
       queryClient.invalidateQueries({ queryKey: ['family-invitations'] });
       queryClient.invalidateQueries({ queryKey: ['family-members'] });
       queryClient.invalidateQueries({ queryKey: ['user-invitations'] });
-      queryClient.invalidateQueries({ queryKey: ['user-family-memberships'] });
+      // Match the exact query key pattern with user ID
+      queryClient.invalidateQueries({ queryKey: ['user-family-memberships', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['families'] });
       toast({
         title: "Success",
-        description: "Family invitation accepted!",
+        description: "Family invitation accepted! Refresh to see your new family.",
       });
     },
     onError: (error) => {
       toast({
         title: "Error",
         description: `Failed to accept invitation: ${error.message}`,
-        variant: "destructive",
       });
     },
   });
