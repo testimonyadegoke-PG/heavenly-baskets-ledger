@@ -1,14 +1,15 @@
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { SimplifiedCategoryManager } from '@/components/categories/SimplifiedCategoryManager';
+import { AppShell } from '@/components/layout/AppShell';
 
 const Categories = () => {
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-background">
+      <AppShell>
         <div className="container mx-auto px-4 py-6">
           <SimplifiedCategoryManager />
         </div>
-      </div>
+      </AppShell>
     </ProtectedRoute>
   );
 };
