@@ -56,6 +56,7 @@ export type Database = {
       budget_templates: {
         Row: {
           created_at: string
+          description: string | null
           family_id: string | null
           id: string
           name: string
@@ -65,6 +66,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          description?: string | null
           family_id?: string | null
           id?: string
           name: string
@@ -74,6 +76,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          description?: string | null
           family_id?: string | null
           id?: string
           name?: string
@@ -426,6 +429,7 @@ export type Database = {
           category: string
           created_at: string
           id: string
+          is_read: boolean
           message: string
           metadata: Json | null
           read: boolean
@@ -439,6 +443,7 @@ export type Database = {
           category?: string
           created_at?: string
           id?: string
+          is_read?: boolean
           message: string
           metadata?: Json | null
           read?: boolean
@@ -452,6 +457,7 @@ export type Database = {
           category?: string
           created_at?: string
           id?: string
+          is_read?: boolean
           message?: string
           metadata?: Json | null
           read?: boolean
@@ -532,6 +538,10 @@ export type Database = {
           name: string
           updated_at: string
         }
+      }
+      delete_expired_notifications: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       mask_email: {
         Args: { email: string; family_id: string; user_id: string }
